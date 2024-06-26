@@ -1,70 +1,67 @@
-# Getting Started with Create React App
+# Budget Management Application
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project is a budget management application that allows users to input and manage budget data for various expense categories across different months. It consists of a React frontend for the user interface and an Express.js backend with PostgreSQL for data storage.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- Input budget and actual expense data for each category and month.
+- Save data to a PostgreSQL database via API.
+- View and manage budget data through a dynamic table interface.
 
-### `npm start`
+## Prerequisites
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Before running the application, ensure you have the following installed:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- Node.js and npm
+- PostgreSQL
 
-### `npm test`
+## Setup Instructions
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Setting up the Backend (Express.js)
 
-### `npm run build`
+1. Navigate to the `server` directory:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+2. Install dependencies:
+```npm init -y```
+```npm install express pg cors body-parser```
+- create a server.js file
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
+3. Set up PostgreSQL:
+- Create a database named `budget_management`.
+- Create a table named `budget` with the following schema:
+  ```sql
+  CREATE TABLE budget (
+    id SERIAL PRIMARY KEY,
+    month VARCHAR(50) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    budget NUMERIC,
+    actual NUMERIC,
+    UNIQUE (month, category)
+  );
+  ```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+4. Configure database connection in `server.js`:
+- Replace `your_db_user`, `your_db_password`, and `your_db_name` with your PostgreSQL credentials.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+5. Start the server: ```node server.js```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Server will run on `http://localhost:5000`.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Setting up the Frontend (React)
 
-## Learn More
+1. Navigate to the `client` directory:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+2. Install dependencies:
+```npm install axios```
 
-### Code Splitting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+3. Start the React application:
 
-### Analyzing the Bundle Size
+```npm start ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+React app will run on `http://localhost:3000`.
 
-### Making a Progressive Web App
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
