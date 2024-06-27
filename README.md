@@ -32,14 +32,25 @@ Before running the application, ensure you have the following installed:
 - Create a database named `budget_management`.
 - Create a table named `budget` with the following schema:
   ```sql
-  CREATE TABLE budget (
-    id SERIAL PRIMARY KEY,
-    month VARCHAR(50) NOT NULL,
-    category VARCHAR(50) NOT NULL,
-    budget NUMERIC,
-    actual NUMERIC,
-    UNIQUE (month, category)
+    CREATE TABLE projects (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(100) NOT NULL,
+      start_date DATE NOT NULL,
+      end_date DATE NOT NULL,
+      budget NUMERIC(10, 2) NOT NULL
   );
+
+  ```
+  ```sql
+    CREATE TABLE expenses (
+      id SERIAL PRIMARY KEY,
+      project_id INTEGER NOT NULL REFERENCES projects(id),
+      month VARCHAR(20) NOT NULL,
+      category VARCHAR(50) NOT NULL,
+      budget NUMERIC(10, 2),
+      actual NUMERIC(10, 2)
+  );
+
   ```
 
 4. Configure database connection in `server.js`:
