@@ -24,7 +24,7 @@ const generateMonthsArray = (start, end) => {
 };
 
 const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
-  const [expenses, setExpenses] = useState({});
+  const [expenses, setExpenses] = useState([]);
   const [newBudget, setNewBudget] = useState({});
   const [newActual, setNewActual] = useState({});
   const [months, setMonths] = useState(generateMonthsArray(projectStartDate, projectEndDate));
@@ -79,38 +79,10 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
   const handleSave = async () => {
     const data = { newBudget, newActual };
 
-    for (const month of months) {
-      const totalBudgetExpenses = categories.reduce((sum, category) => {
-        if (category !== 'Cash Outflow') {
-          return sum + (parseFloat(newBudget[month]?.[category] || expenses[month]?.[category]?.budget || 0));
-        }
-        return sum;
-      }, 0);
-
-      const totalActualExpenses = categories.reduce((sum, category) => {
-        if (category !== 'Cash Outflow') {
-          return sum + (parseFloat(newActual[month]?.[category] || expenses[month]?.[category]?.actual || 0));
-        }
-        return sum;
-      }, 0);
-
-      const cashOutflowBudget = parseFloat(newBudget[month]?.['Cash Outflow'] || expenses[month]?.['Cash Outflow']?.budget || 0);
-      const cashOutflowActual = parseFloat(newActual[month]?.['Cash Outflow'] || expenses[month]?.['Cash Outflow']?.actual || 0);
-
-      if (totalBudgetExpenses > cashOutflowBudget) {
-        alert(`The sum of budget expenses for ${month} exceeds the Cash Outflow budget.`);
-        return;
-      }
-
-      if (totalActualExpenses > cashOutflowActual) {
-        alert(`The sum of actual expenses for ${month} exceeds the Cash Outflow actual.`);
-        return;
-      }
-    }
-
     try {
       await axios.post(`http://localhost:5000/projects/${projectId}/expenses`, data);
       alert('Expenses saved successfully!');
+      // Optionally, you can update state or perform other actions after successful save
     } catch (error) {
       console.error('Error saving expenses:', error);
       alert('Error saving expenses.');
@@ -119,6 +91,7 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
 
   return (
     <div>
+      <h2>Expenses for the Project </h2>
       <table>
         <thead>
           <tr>
@@ -141,22 +114,22 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
                     {isEditable ? (
                       <input
                         type="number"
-                        value={newBudget[month]?.[category] || expenses[month]?.[category]?.budget || ''}
+                        value={newBudget[month]?.[category] || expenses.find(exp => exp.month === month && exp.category === category)?.budget || ''}
                         onChange={e => handleBudgetChange(month, category, e.target.value)}
                       />
                     ) : (
-                      <span>{newBudget[month]?.[category] || expenses[month]?.[category]?.budget || ''}</span>
+                      <span>{newBudget[month]?.[category] || expenses.find(exp => exp.month === month && exp.category === category)?.budget || ''}</span>
                     )}
                   </td>
                   <td>
                     {isEditable ? (
                       <input
                         type="number"
-                        value={newActual[month]?.[category] || expenses[month]?.[category]?.actual || ''}
+                        value={newActual[month]?.[category] || expenses.find(exp => exp.month === month && exp.category === category)?.actual || ''}
                         onChange={e => handleActualChange(month, category, e.target.value)}
                       />
                     ) : (
-                      <span>{newActual[month]?.[category] || expenses[month]?.[category]?.actual || ''}</span>
+                      <span>{newActual[month]?.[category] || expenses.find(exp => exp.month === month && exp.category === category)?.actual || ''}</span>
                     )}
                   </td>
                 </React.Fragment>

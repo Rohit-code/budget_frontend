@@ -6,17 +6,26 @@ function SummarySheet() {
 
   useEffect(() => {
     const fetchSummary = async () => {
-      const response = await axios.get('http://localhost:5000/project-summary');
-      const summaryData = response.data.map(project => {
-        const totalActualExpenses = Object.values(project.expenses).reduce((sum, expense) => sum + (expense.actual || 0), 0);
-        const totalBudgetExpenses = Object.values(project.expenses).reduce((sum, expense) => sum + (expense.budget || 0), 0);
-        return {
-          ...project,
-          consumed_actual: project.budget - totalActualExpenses,
-          consumed_budget: project.budget - totalBudgetExpenses
-        };
-      });
-      setSummary(summaryData);
+      try {
+        const response = await axios.get('http://localhost:5000/project-summary');
+        const summaryData = response.data.map(project => {
+          const totalActualExpenses = project.expenses.reduce((sum, expense) => sum + parseFloat(expense.actual || 0), 0);
+          const totalBudgetExpenses = project.expenses.reduce((sum, expense) => sum + parseFloat(expense.budget || 0), 0);
+          const consumedActual = project.budget - totalActualExpenses;
+          const consumedBudget = project.budget - totalBudgetExpenses;
+
+          return {
+            ...project,
+            totalActual: totalActualExpenses,
+            totalBudget: totalBudgetExpenses,
+            consumedActual: consumedActual,
+            consumedBudget: consumedBudget
+          };
+        });
+        setSummary(summaryData);
+      } catch (error) {
+        console.error('Error fetching project summary:', error);
+      }
     };
 
     fetchSummary();
@@ -43,10 +52,10 @@ function SummarySheet() {
               <td>{project.name}</td>
               <td>{project.start_date}</td>
               <td>{project.end_date}</td>
-              <td>{project.budget}</td>
-              <td>{project.total_actual}</td>
-              <td>{project.consumed_actual}</td>
-              <td>{project.consumed_budget}</td>
+              <td>{project.totalBudget}</td>
+              <td>{project.totalActual}</td>
+              <td>{project.consumedActual}</td>
+              <td>{project.consumedBudget}</td>
             </tr>
           ))}
         </tbody>

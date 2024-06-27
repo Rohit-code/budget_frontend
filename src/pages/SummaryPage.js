@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import SummarySheet from '../components/SummarySheet';
 
 function SummaryPage() {
   const [projects, setProjects] = useState([]);
@@ -23,11 +22,15 @@ function SummaryPage() {
     const fetchSummaryData = async () => {
       try {
         const summaries = await Promise.all(projects.map(async (project) => {
-          const response = await axios.get(`http://localhost:5000/projects/${project.id}/summary`);
+          const responseSummary = await axios.get(`http://localhost:5000/projects/${project.id}/summary`);
+          const responseProject = await axios.get(`http://localhost:5000/projects/${project.id}`);
+          
           return {
             projectId: project.id,
             projectName: project.name,
-            summary: response.data
+            start_date: responseProject.data.start_date,
+            end_date: responseProject.data.end_date,
+            summary: responseSummary.data
           };
         }));
         setSummaryData(summaries);
@@ -43,17 +46,41 @@ function SummaryPage() {
 
   return (
     <div>
+      <h1>Project Budget Management System</h1>
       <h2>Summary</h2>
-      {summaryData.length === 0 ? (
-        <p>Loading summary...</p>
-      ) : (
-        summaryData.map(summary => (
-          <div key={summary.projectId}>
-            <h3>{summary.projectName}</h3>
-            <SummarySheet summary={summary.summary} />
-          </div>
-        ))
-      )}
+      <select>
+        <option value="">Select a project</option>
+        {projects.map(project => (
+          <option key={project.id} value={project.id}>{project.name}</option>
+        ))}
+      </select>
+      <h3>Summary</h3>
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Project Name</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Total Budget</th>
+            <th>Total Actual</th>
+            <th>Consumed Actual</th>
+            <th>Consumed Budget</th>
+          </tr>
+        </thead>
+        <tbody>
+          {summaryData.map((summary) => (
+            <tr key={summary.projectId}>
+              <td>{summary.projectName}</td>
+              <td>{summary.start_date}</td>
+              <td>{summary.end_date}</td>
+              <td>{summary.summary.totalBudget}</td>
+              <td>{summary.summary.consumedActual}</td>
+              <td>{summary.summary.remainingActual}</td>
+              <td>{summary.summary.consumedBudget}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

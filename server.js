@@ -10,7 +10,7 @@ const pool = new Pool({
   user: 'postgres',       // replace with your PostgreSQL username
   host: 'localhost',
   database: 'budget_management',
-  password: '123',  // replace with your PostgreSQL password
+  password: '123',        // replace with your PostgreSQL password
   port: 5432,
 });
 
@@ -19,11 +19,11 @@ app.use(bodyParser.json());
 
 // Endpoint to create a new project
 app.post('/projects', async (req, res) => {
-  const { name, start_date, end_date } = req.body;
+  const { name, start_date, end_date, budget } = req.body;
   try {
     const result = await pool.query(
-      'INSERT INTO projects (name, start_date, end_date, budget) VALUES ($1, $2, $3. $4) RETURNING *',
-      [name, start_date, end_date]
+      'INSERT INTO projects (name, start_date, end_date, budget) VALUES ($1, $2, $3, $4) RETURNING *',
+      [name, start_date, end_date, budget]
     );
     res.send(result.rows[0]);
   } catch (error) {
@@ -64,14 +64,17 @@ app.post('/save-budget', async (req, res) => {
   }
 });
 
-app.delete('/projects/:id', (req, res) => {
-  const projectId = req.params.id;
-  projects = projects.filter(project => project.id !== projectId);
-  res.status(200).send({ message: 'Project deleted successfully' });
-});
-
-app.listen(5000, () => {
-  console.log('Server running on port 5000');
+// Endpoint to delete a project
+app.delete('/projects/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query('DELETE FROM expenses WHERE project_id = $1', [id]);
+    await pool.query('DELETE FROM projects WHERE id = $1', [id]);
+    res.send({ message: 'Project deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting project:', error);
+    res.status(500).send({ error: 'Server error' });
+  }
 });
 
 // Endpoint to get a single project
@@ -106,6 +109,19 @@ app.post('/projects/:id/expenses', async (req, res) => {
     res.send({ success: true });
   } catch (error) {
     console.error('Error saving expenses:', error);
+    res.status(500).send({ error: 'Server error' });
+  }
+});
+
+// Endpoint to get expenses for a project
+app.get('/projects/:id/expenses', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query('SELECT * FROM expenses WHERE project_id = $1', [id]);
+    res.send(result.rows);
+  } catch (error) {
+    console.error('Error fetching expenses:', error);
     res.status(500).send({ error: 'Server error' });
   }
 });
@@ -153,31 +169,44 @@ app.get('/projects/:id/summary', async (req, res) => {
 });
 
 // Endpoint to get the project summary for all projects
-app.get('/project-summary', (req, res) => {
-  const summary = projects.map(project => {
-    const expenses = {}; // Fetch or calculate expenses for the project
-    const totalActualExpenses = Object.values(expenses).reduce((sum, expense) => sum + (expense.actual || 0), 0);
-    const totalBudgetExpenses = Object.values(expenses).reduce((sum, expense) => sum + (expense.budget || 0), 0);
-    return {
-      ...project,
-      total_actual: totalActualExpenses,
-      total_budget: totalBudgetExpenses,
-      expenses
-    };
-  });
-  res.send(summary);
-});
-
-
-// Endpoint to delete a project and its expenses
-app.delete('/projects/:id', async (req, res) => {
-  const { id } = req.params;
+app.get('/project-summary', async (req, res) => {
   try {
-    await pool.query('DELETE FROM expenses WHERE project_id = $1', [id]);
-    await pool.query('DELETE FROM projects WHERE id = $1', [id]);
-    res.send({ message: 'Project deleted successfully' });
+    const projectResult = await pool.query('SELECT * FROM projects');
+    const projects = projectResult.rows;
+
+    const summary = [];
+
+    for (const project of projects) {
+      const expensesResult = await pool.query('SELECT * FROM expenses WHERE project_id = $1', [project.id]);
+      const expenses = expensesResult.rows;
+
+      const totalBudget = project.budget;
+      let consumedBudget = 0;
+      let consumedActual = 0;
+
+      expenses.forEach(expense => {
+        if (expense.category !== 'Cash Outflow') {
+          consumedBudget += parseFloat(expense.budget || 0);
+          consumedActual += parseFloat(expense.actual || 0);
+        }
+      });
+
+      const remainingBudget = totalBudget - consumedBudget;
+      const remainingActual = totalBudget - consumedActual;
+
+      summary.push({
+        project,
+        totalBudget,
+        consumedBudget,
+        remainingBudget,
+        consumedActual,
+        remainingActual
+      });
+    }
+
+    res.send(summary);
   } catch (error) {
-    console.error('Error deleting project:', error);
+    console.error('Error fetching project summaries:', error);
     res.status(500).send({ error: 'Server error' });
   }
 });
