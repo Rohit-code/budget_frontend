@@ -30,7 +30,7 @@ Before running the application, ensure you have the following installed:
 
 3. Set up PostgreSQL:
 - Create a database named `budget_management`.
-- Create a table named `budget` with the following schema:
+- Create a table named `projects`,`expences` with the following schema:
   ```sql
     CREATE TABLE projects (
       id SERIAL PRIMARY KEY,
