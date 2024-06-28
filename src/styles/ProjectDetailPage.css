@@ -1,0 +1,55 @@
+/* src/styles/ProjectDetailPage.css */
+
+.project-detail-container {
+  margin: 20px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  max-width: 800px;
+  margin: auto;
+}
+
+.project-detail-container h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.project-detail-container p {
+  margin: 10px 0;
+  color: #555;
+}
+
+.project-detail-container .detail-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.project-detail-container button {
+  padding: 10px;
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: block;
+  margin: 20px auto;
+  width: 50%;
+}
+
+.project-detail-container button:hover {
+  background-color: #c9302c;
+}
+
+@media (max-width: 600px) {
+  .project-detail-container .detail-info {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .project-detail-container button {
+    width: 100%;
+  }
+}

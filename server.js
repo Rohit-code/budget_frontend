@@ -211,6 +211,39 @@ app.get('/project-summary', async (req, res) => {
   }
 });
 
+// New Endpoint to handle user registration
+app.post('/register', async (req, res) => {
+  const { name, dept, emailid, password } = req.body;
+  try {
+    const result = await pool.query(
+      'INSERT INTO employee (name, dept, emailid, password) VALUES ($1, $2, $3, $4) RETURNING *',
+      [name, dept, emailid, password]
+    );
+    res.send(result.rows[0]);
+  } catch (error) {
+    console.error('Error registering user:', error);
+    res.status(500).send({ error: 'Server error' });
+  }
+});
+
+// New Endpoint to handle user login
+app.post('/login', async (req, res) => {
+  const { emailid, password } = req.body;
+  try {
+    const result = await pool.query(
+      'SELECT * FROM employee WHERE emailid = $1 AND password = $2',
+      [emailid, password]
+    );
+    if (result.rows.length === 0) {
+      return res.status(401).send({ error: 'Invalid email or password' });
+    }
+    res.send({ success: true });
+  } catch (error) {
+    console.error('Error logging in user:', error);
+    res.status(500).send({ error: 'Server error' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

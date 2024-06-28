@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import '../styles/SummaryPage.css';
 
 function SummaryPage() {
   const [projects, setProjects] = useState([]);
@@ -45,7 +46,7 @@ function SummaryPage() {
   }, [projects]);
 
   return (
-    <div>
+    <div className="summary-page-container">
       <h1>Project Budget Management System</h1>
       <h2>Summary</h2>
       <select>

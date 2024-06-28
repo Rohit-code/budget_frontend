@@ -1,0 +1,39 @@
+/* src/styles/ProjectForm.css */
+
+.project-form {
+    margin: 20px;
+  }
+  
+  .project-form form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .project-form div {
+    margin-bottom: 10px;
+  }
+  
+  .project-form label {
+    margin-bottom: 5px;
+    color: #333;
+  }
+  
+  .project-form input {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .project-form button {
+    padding: 10px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .project-form button:hover {
+    background-color: #555;
+  }
+  

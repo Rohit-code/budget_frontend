@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import '../styles/DynamicTable.css'
 
 const categories = [
   'Cash Outflow', 'Travel Desk', 'Accommodation', 'Site Travel',

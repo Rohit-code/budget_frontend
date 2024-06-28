@@ -1,0 +1,49 @@
+/* src/styles/SummaryPage.css */
+
+.summary-page-container {
+    margin: 20px;
+    padding: 20px;
+  }
+  
+  .summary-page-container h1, 
+  .summary-page-container h2, 
+  .summary-page-container h3 {
+    text-align: center;
+    color: #333;
+  }
+  
+  .summary-page-container select {
+    display: block;
+    margin: 20px auto;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 50%;
+  }
+  
+  .summary-page-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .summary-page-container table th,
+  .summary-page-container table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+  }
+  
+  .summary-page-container table th {
+    background-color: #f4f4f4;
+    color: #333;
+  }
+  
+  .summary-page-container table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .summary-page-container table tr:hover {
+    background-color: #f1f1f1;
+  }
+  
