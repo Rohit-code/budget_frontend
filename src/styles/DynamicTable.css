@@ -1,0 +1,59 @@
+/* src/styles/DynamicTable.css */
+
+.dynamic-table-container {
+    margin: 20px;
+  }
+  
+  .dynamic-table-container h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .dynamic-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  .dynamic-table th,
+  .dynamic-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+  }
+  
+  .dynamic-table th {
+    background-color: #f4f4f4;
+    color: #333;
+  }
+  
+  .dynamic-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .dynamic-table tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .dynamic-table input {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .dynamic-table button {
+    padding: 10px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 5px;
+  }
+  
+  .dynamic-table button:hover {
+    background-color: #555;
+  }
+  

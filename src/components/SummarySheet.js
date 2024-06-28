@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import '../styles/SummarySheet.css'; // Import the CSS file
 
 function SummarySheet() {
   const [summary, setSummary] = useState([]);
