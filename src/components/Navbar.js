@@ -1,17 +1,24 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import '../styles/Navbar.css';
+import { useAuth } from '../context/AuthContext';
 
-function Navbar() {
-  return (
-    <nav className='navbar'>
-      <ul>
-        <li><Link to="/">Budget Management</Link></li>
-        <li><Link to="/add-project">Add Project</Link></li>
-        <li><Link to="/summary">Summary</Link></li>
-      </ul>
-    </nav>
-  );
-}
+const Navbar = () => {
+    const { isAuthenticated, logout } = useAuth();
+
+    return (
+        <nav>
+            <Link to="/summary">Summary</Link>
+            <Link to="/add-project">Add Project</Link>
+            {isAuthenticated ? (
+                <button onClick={logout}>Logout</button>
+            ) : (
+                <>
+                    <Link to="/login">Login</Link>
+                    <Link to="/register">Register</Link>
+                </>
+            )}
+        </nav>
+    );
+};
 
 export default Navbar;

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const [emailid, setEmailId] = useState('');
+  const [emailid, setEmailid] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
@@ -23,18 +23,20 @@ const Login = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <div className="login-container">
       <h2>Login</h2>
-      <div>
-        <label>Email:</label>
-        <input type="email" value={emailid} onChange={(e) => setEmailId(e.target.value)} required />
-      </div>
-      <div>
-        <label>Password:</label>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-      </div>
-      <button type="submit">Login</button>
-    </form>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Email ID:</label>
+          <input type="email" value={emailid} onChange={(e) => setEmailid(e.target.value)} required />
+        </div>
+        <div>
+          <label>Password:</label>
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        </div>
+        <button type="submit">Login</button>
+      </form>
+    </div>
   );
 };
 
