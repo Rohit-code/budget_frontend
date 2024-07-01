@@ -43,7 +43,7 @@ function SummarySheet() {
             <th>End Date</th>
             <th>Total Budget</th>
             <th>Total Actual</th>
-            <th>Consumed Actual</th>
+            <th>Remaining Actual</th>
             <th>Consumed Budget</th>
           </tr>
         </thead>

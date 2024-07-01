@@ -226,6 +226,29 @@ app.post('/register', async (req, res) => {
   }
 });
 
+// Endpoint to update a project
+app.put('/projects/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, start_date, end_date, budget } = req.body;
+  
+  try {
+    const result = await pool.query(
+      'UPDATE projects SET name = $1, start_date = $2, end_date = $3, budget = $4 WHERE id = $5 RETURNING *',
+      [name, start_date, end_date, budget, id]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).send({ error: 'Project not found' });
+    }
+    
+    res.send(result.rows[0]);
+  } catch (error) {
+    console.error('Error updating project:', error);
+    res.status(500).send({ error: 'Server error' });
+  }
+});
+
+
 // New Endpoint to handle user login
 app.post('/login', async (req, res) => {
   const { emailid, password } = req.body;

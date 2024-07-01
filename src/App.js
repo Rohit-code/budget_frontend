@@ -45,8 +45,8 @@ function App() {
           <ul>
             <li><Link to="/add-project">Add Project</Link></li>
             <li><Link to="/summary">Summary</Link></li>
-            {/* <li><Link to="/login">Login</Link></li>
-            <li><Link to="/register">Register</Link></li> */}
+            <li><Link to="/login">Login</Link></li>
+            <li><Link to="/register">Register</Link></li> 
             <li>
               <select onChange={(e) => {
                 const projectId = e.target.value;
@@ -66,8 +66,8 @@ function App() {
           <Route path="/add-project" element={<AddProjectPage onProjectAdded={handleProjectAdded} />} />
           <Route path="/summary" element={<SummaryPage />} />
           <Route path="/project/:projectId" element={<ProjectDetailPage onDeleteProject={handleDeleteProject} />} />
-          {/* <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} /> */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} /> 
         </Routes>
       </div>
     </Router>
