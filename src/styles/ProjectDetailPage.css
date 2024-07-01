@@ -1,13 +1,13 @@
 /* src/styles/ProjectDetailPage.css */
 
 .project-detail-container {
-  margin: 20px;
+  margin: 20px auto;
   padding: 20px;
   border: 1px solid #ddd;
   border-radius: 8px;
   background-color: #f9f9f9;
-  max-width: 800px;
-  margin: auto;
+  max-width: 90%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .project-detail-container h2 {
@@ -25,18 +25,31 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.project-detail-container .detail-info p {
+  margin: 5px 10px;
+}
+
+.project-detail-container .buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
 }
 
 .project-detail-container button {
-  padding: 10px;
+  padding: 10px 20px;
   background-color: #d9534f;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  display: block;
-  margin: 20px auto;
-  width: 50%;
+  margin: 10px 0;
+  width: 80%;
+  max-width: 300px;
+  font-size: 16px;
 }
 
 .project-detail-container button:hover {
@@ -49,7 +62,12 @@
     text-align: center;
   }
 
+  .project-detail-container .detail-info p {
+    margin: 10px 0;
+  }
+
   .project-detail-container button {
     width: 100%;
+    max-width: none;
   }
 }
