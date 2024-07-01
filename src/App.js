@@ -3,8 +3,8 @@ import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from 'react
 import AddProjectPage from './pages/AddProjectPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import SummaryPage from './pages/SummaryPage';
-import Login from './components/Login';
-import Register from './components/Register';
+// import Login from './components/Login';
+// import Register from './components/Register';
 import './App.css';
 import axios from 'axios';
 
