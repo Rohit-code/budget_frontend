@@ -8,7 +8,7 @@ const PublicRoutes = ({ handleLogin }) => {
     <Routes>
       <Route path="/login" element={<Login onLogin={handleLogin} />} />
       <Route path="/register" element={<Register />} />
-      <Route path="*" element={<Navigate to="/login" />} />
+      <Route path="*" element={<Navigate to="/ErrorBoundary" />} />
     </Routes>
   );
 };

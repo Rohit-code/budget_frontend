@@ -49,13 +49,13 @@ function SummaryPage() {
     <div className="summary-page-container">
       <h1>Project Budget Management System</h1>
       <h2>Summary</h2>
-      <select>
+      {/*  <select>
         <option value="">Select a project</option>
         {projects.map(project => (
           <option key={project.id} value={project.id}>{project.name}</option>
         ))}
-      </select>
-      <h3>Summary</h3>
+      </select> 
+      <h3>Summary</h3> */}
       <table border="1">
         <thead>
           <tr>
@@ -87,3 +87,99 @@ function SummaryPage() {
 }
 
 export default SummaryPage;
+// import React, { useEffect, useState } from 'react';
+// import axios from 'axios';
+// import '../styles/SummaryPage.css';
+
+// function SummaryPage() {
+//   const [projects, setProjects] = useState([]);
+//   const [summaryData, setSummaryData] = useState([]);
+//   const [selectedProjectId, setSelectedProjectId] = useState('');
+
+//   useEffect(() => {
+//     const fetchProjects = async () => {
+//       try {
+//         const response = await axios.get('http://localhost:5000/projects');
+//         setProjects(response.data);
+//       } catch (error) {
+//         console.error('Error fetching projects:', error);
+//       }
+//     };
+
+//     fetchProjects();
+//   }, []);
+
+//   useEffect(() => {
+//     const fetchSummaryData = async () => {
+//       try {
+//         if (selectedProjectId) {
+//           const responseSummary = await axios.get(`http://localhost:5000/projects/${selectedProjectId}/summary`);
+//           const responseProject = await axios.get(`http://localhost:5000/projects/${selectedProjectId}`);
+          
+//           const summary = {
+//             projectId: selectedProjectId,
+//             projectName: responseProject.data.name,
+//             start_date: responseProject.data.start_date,
+//             end_date: responseProject.data.end_date,
+//             summary: responseSummary.data
+//           };
+
+//           setSummaryData([summary]);
+//         } else {
+//           setSummaryData([]);
+//         }
+//       } catch (error) {
+//         console.error('Error fetching summary data:', error);
+//       }
+//     };
+
+//     fetchSummaryData();
+//   }, [selectedProjectId]);
+
+//   const handleProjectChange = (e) => {
+//     const projectId = e.target.value;
+//     setSelectedProjectId(projectId);
+//   };
+
+//   return (
+//     <div className="summary-page-container">
+//       <h1>Project Budget Management System</h1>
+//       <h2>Summary</h2>
+//       <select onChange={handleProjectChange} value={selectedProjectId}>
+//         <option value="">Select a project</option>
+//         {projects.map(project => (
+//           <option key={project.id} value={project.id}>{project.name}</option>
+//         ))}
+//       </select>
+//       <h3>Summary</h3>
+//       <table border="1">
+//         <thead>
+//           <tr>
+//             <th>Project Name</th>
+//             <th>Start Date</th>
+//             <th>End Date</th>
+//             <th>Total Budget</th>
+//             <th>Total Actual</th>
+//             <th>Remaining Actual</th>
+//             <th>Consumed Budget</th>
+//           </tr>
+//         </thead>
+//         <tbody>
+//           {summaryData.map((summary) => (
+//             <tr key={summary.projectId}>
+//               <td>{summary.projectName}</td>
+//               <td>{summary.start_date}</td>
+//               <td>{summary.end_date}</td>
+//               <td>{summary.summary.totalBudget}</td>
+//               <td>{summary.summary.consumedActual}</td>
+//               <td>{summary.summary.remainingActual}</td>
+//               <td>{summary.summary.consumedBudget}</td>
+//             </tr>
+//           ))}
+//         </tbody>
+//       </table>
+//     </div>
+//   );
+// }
+
+// export default SummaryPage;
