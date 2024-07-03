@@ -1,59 +1,62 @@
-/* src/styles/DynamicTable.css */
-
 .dynamic-table-container {
     margin: 20px;
-  }
+}
   
-  .dynamic-table-container h2 {
+.dynamic-table-container h2 {
     text-align: center;
     color: #333;
     margin-bottom: 20px;
-  }
+}
   
-  .dynamic-table {
+.dynamic-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
-  }
+}
   
-  .dynamic-table th,
-  .dynamic-table td {
+.dynamic-table th,
+.dynamic-table td {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: center;
-  }
+}
   
-  .dynamic-table th {
+.dynamic-table th {
     background-color: #f4f4f4;
     color: #333;
-  }
+}
   
-  .dynamic-table tr:nth-child(even) {
+.dynamic-table tr:nth-child(even) {
     background-color: #f9f9f9;
-  }
+}
   
-  .dynamic-table tr:hover {
+.dynamic-table tr:hover {
     background-color: #f1f1f1;
-  }
+}
   
-  .dynamic-table input {
+.dynamic-table input {
     width: 100%;
     padding: 5px;
     border: 1px solid #ddd;
     border-radius: 4px;
-  }
+}
   
-  .dynamic-table button {
-    padding: 10px;
-    background-color: #333;
+.dynamic-table button {
+    padding: 6px 12px; /* Reduced padding for smaller button size */
+    background-color: #ff5c5c;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     margin: 5px;
-  }
+    transition: background-color 0.3s;
+}
   
-  .dynamic-table button:hover {
-    background-color: #555;
-  }
+.dynamic-table button:hover {
+    background-color: #e04d4d;
+}
   
+.dynamic-table button:disabled {
+    background-color: #ddd;
+    cursor: not-allowed;
+}

@@ -64,19 +64,6 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
     }));
   };
 
-  const handleAddMonth = () => {
-    const lastMonth = months[months.length - 1];
-    const lastDate = new Date(lastMonth.split(' ').reverse().join('-'));
-    lastDate.setMonth(lastDate.getMonth() + 1);
-    const newMonth = lastDate.toLocaleString('default', { month: 'short', year: 'numeric' });
-
-    if (lastDate <= new Date(projectEndDate)) {
-      setMonths(prev => [...prev, newMonth]);
-    } else {
-      alert('Cannot add month beyond the project end date');
-    }
-  };
-
   const handleSave = async () => {
     const data = { newBudget, newActual };
 
@@ -139,7 +126,6 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
           ))}
         </tbody>
       </table>
-      <button onClick={handleAddMonth} disabled={!isEditable}>Add Month</button>
       <button onClick={handleSave} disabled={!isEditable}>Save</button>
       <button onClick={() => setIsEditable(!isEditable)}>{isEditable ? 'Cancel' : 'Edit'}</button>
     </div>
