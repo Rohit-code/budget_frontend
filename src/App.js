@@ -159,11 +159,13 @@
 // }
 
 // export default App;
+
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
 import axios from 'axios';
 import PublicRoutes from './routes/PublicRoutes';
 import PrivateRoutes from './routes/PrivateRoutes';
+import ErrorBoundary from './components/ErrorBoundary';
 import './App.css';
 
 function App() {
@@ -228,34 +230,35 @@ function App() {
     <Router>
       <div className="App">
         <h1>Project Budget Management System</h1>
-        {isAuthenticated ? (
-          <>
-            <nav>
-              <ul>
-                <li><Link to="/add-project">Add Project</Link></li>
-                <li><Link to="/summary">Summary</Link></li>
-                <li>
-                  <select onChange={(e) => {
-                    const projectId = e.target.value;
-                    if (projectId) {
-                      window.location.href = `/project/${projectId}`;
-                    }
-                  }}>
-                    <option value="">Select a project</option>
-                    {projects.map(project => (
-                      <option key={project.id} value={project.id}>{project.name}</option>
-                    ))}
-                  </select>
-                </li>
-                <li><button onClick={handleLogout}>Logout</button></li>
-                
-              </ul>
-            </nav>
-            <PrivateRoutes handleProjectAdded={handleProjectAdded} handleDeleteProject={handleDeleteProject} />
-          </>
-        ) : (
-          <PublicRoutes handleLogin={handleLogin} />
-        )}
+        <ErrorBoundary>
+          {isAuthenticated ? (
+            <>
+              <nav>
+                <ul>
+                  <li><Link to="/add-project">Add Project</Link></li>
+                  <li><Link to="/summary">Summary</Link></li>
+                  <li>
+                    <select onChange={(e) => {
+                      const projectId = e.target.value;
+                      if (projectId) {
+                        window.location.href = `/project/${projectId}`;
+                      }
+                    }}>
+                      <option value="">Select a project</option>
+                      {projects.map(project => (
+                        <option key={project.id} value={project.id}>{project.name}</option>
+                      ))}
+                    </select>
+                  </li>
+                  <li><button onClick={handleLogout}>Logout</button></li>
+                </ul>
+              </nav>
+              <PrivateRoutes handleProjectAdded={handleProjectAdded} handleDeleteProject={handleDeleteProject} />
+            </>
+          ) : (
+            <PublicRoutes handleLogin={handleLogin} />
+          )}
+        </ErrorBoundary>
       </div>
     </Router>
   );

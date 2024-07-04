@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import '../styles/Auth.css'
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -25,7 +26,7 @@ const Register = () => {
   };
 
   return (
-    <div className="register-container">
+    <div className="auth-container">
       <h2>Register</h2>
       <form onSubmit={handleSubmit}>
         <div>

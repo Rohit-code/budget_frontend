@@ -56,6 +56,8 @@
 // }
 
 // export default ProjectDetailPage;
+// ProjectDetailPage.js
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -75,7 +77,7 @@ function ProjectDetailPage({ onDeleteProject }) {
         setProject(response.data);
       } catch (error) {
         if (error.response && error.response.status === 401) {
-          navigate('/ErrorBoundary'); // Redirect to login page on authentication error
+          navigate('/login'); // Redirect to login page on authentication error
         } else {
           setError(error.response ? error.response.data.error : 'Error fetching project');
         }

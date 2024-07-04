@@ -14,8 +14,23 @@ const pool = new Pool({
   port: 5432,
 });
 
-app.use(cors());
-app.use(bodyParser.json());
+app.get('/checkAuth', (req, res) => {
+  // Check user authentication status
+  if (req.isAuthenticated()) { // Or your own authentication check logic
+    res.send({ isAuthenticated: true });
+  } else {
+    res.send({ isAuthenticated: false });
+  }
+});
+
+
+const corsOptions = {
+  origin: 'http://localhost:3000',
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+
 
 // Endpoint to create a new project
 app.post('/projects', async (req, res) => {
