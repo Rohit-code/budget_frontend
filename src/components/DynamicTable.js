@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import '../styles/DynamicTable.css'
+import '../styles/DynamicTable.css';
 
 const categories = [
-  'Cash Outflow', 'Travel Desk', 'Accommodation', 'Site Travel',
-  'Food', 'DP Vendor', 'DC Vendor', 'Flying Vendor',
-  'Consultant', 'Special', 'Miscellaneous'
+  'Travel Desk', 'Accommodation', 'Site Travel', 'Food', 
+  'DP Vendor', 'DC Vendor', 'Flying Vendor', 'Consultant', 
+  'Special', 'Miscellaneous'
 ];
 
 const generateMonthsArray = (start, end) => {
@@ -44,24 +44,37 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
     fetchExpenses();
   }, [projectId]);
 
-  const handleBudgetChange = (month, category, value) => {
+  const handleBudgetChange = (category, month, value) => {
     setNewBudget(prev => ({
       ...prev,
-      [month]: {
-        ...prev[month],
-        [category]: value
+      [category]: {
+        ...prev[category],
+        [month]: parseFloat(value) || 0
       }
     }));
   };
 
-  const handleActualChange = (month, category, value) => {
+  const handleActualChange = (category, month, value) => {
     setNewActual(prev => ({
       ...prev,
-      [month]: {
-        ...prev[month],
-        [category]: value
+      [category]: {
+        ...prev[category],
+        [month]: parseFloat(value) || 0
       }
     }));
+  };
+
+  const handleAddMonth = () => {
+    const lastMonth = months[months.length - 1];
+    const lastDate = new Date(lastMonth.split(' ').reverse().join('-'));
+    lastDate.setMonth(lastDate.getMonth() + 1);
+    const newMonth = lastDate.toLocaleString('default', { month: 'short', year: 'numeric' });
+
+    if (lastDate <= new Date(projectEndDate)) {
+      setMonths(prev => [...prev, newMonth]);
+    } else {
+      alert('Cannot add month beyond the project end date');
+    }
   };
 
   const handleSave = async () => {
@@ -77,47 +90,69 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
     }
   };
 
+  const calculateCashOutflow = (month, type) => {
+    const expensesForMonth = type === 'budget' ? newBudget : newActual;
+    return categories.reduce((sum, category) => {
+      const value = expensesForMonth[category]?.[month] || 0;
+      return sum + value;
+    }, 0);
+  };
+
   return (
     <div>
-      <h2>Expenses for the Project </h2>
+      <h2>Expenses for the Project</h2>
       <table>
         <thead>
           <tr>
-            <th>Month</th>
-            {categories.map(category => (
-              <React.Fragment key={category}>
-                <th>{category} Budget</th>
-                <th>{category} Actual</th>
+            <th rowSpan="2">Category</th>
+            {months.map(month => (
+              <th key={month} colSpan="2">{month}</th>
+            ))}
+          </tr>
+          <tr>
+            {months.map(month => (
+              <React.Fragment key={month}>
+                <th>Budget</th>
+                <th>Actual</th>
               </React.Fragment>
             ))}
           </tr>
         </thead>
         <tbody>
-          {months.map(month => (
-            <tr key={month}>
-              <td>{month}</td>
-              {categories.map(category => (
-                <React.Fragment key={category}>
+          <tr>
+            <td>Cash Outflow</td>
+            {months.map(month => (
+              <React.Fragment key={month}>
+                <td>{calculateCashOutflow(month, 'budget')}</td>
+                <td>{calculateCashOutflow(month, 'actual')}</td>
+              </React.Fragment>
+            ))}
+          </tr>
+          {categories.map(category => (
+            <tr key={category}>
+              <td>{category}</td>
+              {months.map(month => (
+                <React.Fragment key={month}>
                   <td>
                     {isEditable ? (
                       <input
                         type="number"
-                        value={newBudget[month]?.[category] || expenses.find(exp => exp.month === month && exp.category === category)?.budget || ''}
-                        onChange={e => handleBudgetChange(month, category, e.target.value)}
+                        value={newBudget[category]?.[month] || 0}
+                        onChange={e => handleBudgetChange(category, month, e.target.value)}
                       />
                     ) : (
-                      <span>{newBudget[month]?.[category] || expenses.find(exp => exp.month === month && exp.category === category)?.budget || ''}</span>
+                      <span>{newBudget[category]?.[month] || 0}</span>
                     )}
                   </td>
                   <td>
                     {isEditable ? (
                       <input
                         type="number"
-                        value={newActual[month]?.[category] || expenses.find(exp => exp.month === month && exp.category === category)?.actual || ''}
-                        onChange={e => handleActualChange(month, category, e.target.value)}
+                        value={newActual[category]?.[month] || 0}
+                        onChange={e => handleActualChange(category, month, e.target.value)}
                       />
                     ) : (
-                      <span>{newActual[month]?.[category] || expenses.find(exp => exp.month === month && exp.category === category)?.actual || ''}</span>
+                      <span>{newActual[category]?.[month] || 0}</span>
                     )}
                   </td>
                 </React.Fragment>
@@ -126,6 +161,7 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
           ))}
         </tbody>
       </table>
+      <button onClick={handleAddMonth} disabled={!isEditable}>Add Month</button>
       <button onClick={handleSave} disabled={!isEditable}>Save</button>
       <button onClick={() => setIsEditable(!isEditable)}>{isEditable ? 'Cancel' : 'Edit'}</button>
     </div>
