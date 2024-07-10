@@ -48,14 +48,14 @@ function SummaryPage() {
   return (
     <div className="summary-page-container">
       <h1>Project Budget Management System</h1>
-      <h2>Summary</h2>
-      <select>
+      <h2> <i>Summary </i></h2>
+      {/* <select>
         <option value="">Select a project</option>
         {projects.map(project => (
           <option key={project.id} value={project.id}>{project.name}</option>
         ))}
       </select>
-      <h3>Summary</h3>
+      <h3>Summary</h3> */}
       <table border="1">
         <thead>
           <tr>

@@ -1,38 +1,95 @@
-/* src/styles/SummarySheet.css */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f9;
+  margin: 0;
+  padding: 0;
+}
 
-.summary-container {
-    margin: 20px;
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+h2 {
+  color: #333;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+thead th {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px;
+  text-align: center;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+td {
+  color: #555;
+}
+
+td, th {
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  table, thead, tbody, th, td, tr {
+    display: block;
   }
-  
-  .summary-container h2 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 20px;
+
+  thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
   }
-  
-  .summary-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
+
+  tr {
+    margin: 0 0 20px 0;
   }
-  
-  .summary-table th,
-  .summary-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: center;
+
+  tr:nth-child(even) {
+    background-color: transparent;
   }
-  
-  .summary-table th {
-    background-color: #f4f4f4;
-    color: #333;
+
+  td {
+    border: none;
+    border-bottom: 1px solid #eee;
+    position: relative;
+    padding-left: 50%;
+    text-align: left;
   }
-  
-  .summary-table tr:nth-child(even) {
-    background-color: #f9f9f9;
+
+  td:before {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    content: attr(data-label);
+    color: #000;
+    font-weight: bold;
   }
-  
-  .summary-table tr:hover {
-    background-color: #f1f1f1;
-  }
-  
+}
