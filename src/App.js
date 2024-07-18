@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import AddProjectPage from './pages/AddProjectPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import SummaryPage from './pages/SummaryPage';
-import Login from './components/Login';
-import Register from './components/Register';
+import FinancialYearSummary from './pages/FinancialYearSummary'; // Import the new page
 import './App.css';
 import axios from 'axios';
 
@@ -45,8 +44,7 @@ function App() {
           <ul>
             <li><Link to="/add-project">Add Project</Link></li>
             <li><Link to="/summary">Summary</Link></li>
-            {/* <li><Link to="/login">Login</Link></li>
-            <li><Link to="/register">Register</Link></li> */}
+            <li><Link to="/financial-year-summary">Financial Year Summary</Link></li> {/* New Link */}
             <li>
               <select onChange={(e) => {
                 const projectId = e.target.value;
@@ -66,8 +64,7 @@ function App() {
           <Route path="/add-project" element={<AddProjectPage onProjectAdded={handleProjectAdded} />} />
           <Route path="/summary" element={<SummaryPage />} />
           <Route path="/project/:projectId" element={<ProjectDetailPage onDeleteProject={handleDeleteProject} />} />
-          {/* <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} /> */}
+          <Route path="/financial-year-summary" element={<FinancialYearSummary />} /> {/* New Route */}
         </Routes>
       </div>
     </Router>
