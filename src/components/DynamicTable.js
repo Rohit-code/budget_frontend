@@ -30,18 +30,45 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
   const [newActual, setNewActual] = useState({});
   const [months, setMonths] = useState(generateMonthsArray(projectStartDate, projectEndDate));
   const [isEditable, setIsEditable] = useState(false);
+  const [error, setError] = useState('');
+  const [projectBudget, setProjectBudget] = useState(0);
 
   useEffect(() => {
-    const fetchExpenses = async () => {
+    const fetchProjectData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/projects/${projectId}/expenses`);
-        setExpenses(response.data);
+        const projectResponse = await axios.get(`http://localhost:5000/projects/${projectId}`);
+        setProjectBudget(projectResponse.data.budget);
+        
+        const expensesResponse = await axios.get(`http://localhost:5000/projects/${projectId}/expenses`);
+        console.log('Fetched expenses response:', expensesResponse.data);
+
+        const budgetData = {};
+        const actualData = {};
+
+        expensesResponse.data.forEach(expense => {
+          // Correctly assign the month and category fields
+          const { month, category, budget, actual } = { 
+            month: expense.category, 
+            category: expense.month, 
+            budget: expense.budget, 
+            actual: expense.actual 
+          };
+          if (!budgetData[category]) budgetData[category] = {};
+          if (!actualData[category]) actualData[category] = {};
+          budgetData[category][month] = parseFloat(budget) || 0;
+          actualData[category][month] = parseFloat(actual) || 0;
+        });
+
+        console.log('Parsed budget data:', budgetData);
+        console.log('Parsed actual data:', actualData);
+        setNewBudget(budgetData);
+        setNewActual(actualData);
       } catch (error) {
-        console.error('Error fetching expenses:', error);
+        console.error('Error fetching project data:', error);
       }
     };
 
-    fetchExpenses();
+    fetchProjectData();
   }, [projectId]);
 
   const handleBudgetChange = (category, month, value) => {
@@ -78,6 +105,22 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
   };
 
   const handleSave = async () => {
+    // Calculate total actual expenses
+    let totalActualExpenses = 0;
+
+    categories.forEach(category => {
+      months.forEach(month => {
+        totalActualExpenses += newActual[category]?.[month] || 0;
+      });
+    });
+
+    if (totalActualExpenses > projectBudget) {
+      setError(`The total actual expenses exceed the project budget of ${projectBudget}.`);
+      return;
+    }
+
+    // If validation passes, clear the error and proceed with saving
+    setError('');
     const data = { newBudget, newActual };
 
     try {
@@ -101,6 +144,7 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
   return (
     <div>
       <h2>Expenses for the Project</h2>
+      {error && <p className="error">{error}</p>}
       <table>
         <thead>
           <tr>
@@ -141,7 +185,7 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
                         onChange={e => handleBudgetChange(category, month, e.target.value)}
                       />
                     ) : (
-                      <span>{newBudget[category]?.[month] || 0}</span>
+                      <span>{newBudget[category]?.[month] || expenses.find(e => e.category === category && e.month === month)?.budget || 0}</span>
                     )}
                   </td>
                   <td>
@@ -152,7 +196,7 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
                         onChange={e => handleActualChange(category, month, e.target.value)}
                       />
                     ) : (
-                      <span>{newActual[category]?.[month] || 0}</span>
+                      <span>{newActual[category]?.[month] || expenses.find(e => e.category === category && e.month === month)?.actual || 0}</span>
                     )}
                   </td>
                 </React.Fragment>
@@ -161,9 +205,9 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
           ))}
         </tbody>
       </table>
-      <button onClick={handleAddMonth} disabled={!isEditable}>Add Month</button>
-      <button onClick={handleSave} disabled={!isEditable}>Save</button>
-      <button onClick={() => setIsEditable(!isEditable)}>{isEditable ? 'Cancel' : 'Edit'}</button>
+      <button onClick={handleAddMonth}>Add Month</button>
+      <button onClick={handleSave}>Save</button>
+      <button onClick={() => setIsEditable(!isEditable)}>{isEditable ? 'Done' : 'Edit'}</button>
     </div>
   );
 };
