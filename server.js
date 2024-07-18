@@ -17,8 +17,7 @@ const pool = new Pool({
 app.use(cors());
 app.use(bodyParser.json());
 
-<<<<<<< Updated upstream
-=======
+
 
 // Get projects for a specific financial year
 app.get('/projects/financial-year/:year', async (req, res) => {
@@ -50,7 +49,7 @@ app.get('/fiscal-years', async (req, res) => {
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
->>>>>>> Stashed changes
+
 // Endpoint to create a new project
 app.post('/projects', async (req, res) => {
   const { name, start_date, end_date, budget } = req.body;

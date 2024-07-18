@@ -3,10 +3,9 @@ import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from 'react
 import AddProjectPage from './pages/AddProjectPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import SummaryPage from './pages/SummaryPage';
-<<<<<<< Updated upstream
-=======
+
 import FinancialYearSummary from './components/FinancialYearSummary'; // Import the new component
->>>>>>> Stashed changes
+
 import './App.css';
 import axios from 'axios';
 
