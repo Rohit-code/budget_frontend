@@ -17,6 +17,40 @@ const pool = new Pool({
 app.use(cors());
 app.use(bodyParser.json());
 
+<<<<<<< Updated upstream
+=======
+
+// Get projects for a specific financial year
+app.get('/projects/financial-year/:year', async (req, res) => {
+  const { year } = req.params;
+  try {
+    const projects = await pool.query(
+      'SELECT * FROM projects WHERE EXTRACT(YEAR FROM start_date) = $1 OR EXTRACT(YEAR FROM end_date) = $1',
+      [year]
+    );
+    res.json(projects.rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
+// Get available fiscal years
+app.get('/fiscal-years', async (req, res) => {
+  try {
+    const fiscalYears = await pool.query(
+      'SELECT DISTINCT EXTRACT(YEAR FROM start_date) AS year FROM projects UNION SELECT DISTINCT EXTRACT(YEAR FROM end_date) AS year FROM projects ORDER BY year'
+    );
+    res.json(fiscalYears.rows.map(row => row.year));
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
+>>>>>>> Stashed changes
 // Endpoint to create a new project
 app.post('/projects', async (req, res) => {
   const { name, start_date, end_date, budget } = req.body;
