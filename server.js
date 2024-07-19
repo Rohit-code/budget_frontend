@@ -47,9 +47,7 @@ app.get('/projects/completed', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+
 // Endpoint to create a new project
 app.post('/projects', async (req, res) => {
   const { name, start_date, end_date, budget } = req.body;
