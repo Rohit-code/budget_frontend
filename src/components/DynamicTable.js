@@ -205,7 +205,7 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
           ))}
         </tbody>
       </table>
-      <button onClick={handleAddMonth}>Add Month</button>
+      {/* <button onClick={handleAddMonth}>Add Month</button> */}
       <button onClick={handleSave}>Save</button>
       <button onClick={() => setIsEditable(!isEditable)}>{isEditable ? 'Done' : 'Edit'}</button>
     </div>

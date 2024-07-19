@@ -1,12 +1,18 @@
 /* src/styles/SummaryPage.css */
 
+body {
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(135deg, #f8e1ff 0%, #b0eaff 100%);
+  margin: 0;
+  padding: 0;
+}
+
 .summary-page-container {
   width: 80%;
   margin: 40px auto;
   padding: 30px;
-  font-family: 'Arial', sans-serif;
-  background-color: #f0f8f7;
-  border-radius: 15px;
+  background-color: #c3d7e6;
+  border-radius: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease-in-out;
 }
@@ -17,18 +23,17 @@
 
 h1, h2 {
   text-align: center;
-  color: #333;
   margin-bottom: 20px;
+  color: #2c3e50;
 }
 
 h1 {
   font-size: 36px;
   font-weight: 700;
-  color: #2c3e50;
 }
 
 h2 {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 600;
   color: #34495e;
 }
@@ -40,6 +45,8 @@ table {
   font-size: 16px;
   overflow: hidden;
   border-radius: 10px;
+  background-color: #f8f8f8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 th, td {
@@ -50,7 +57,7 @@ th, td {
 }
 
 thead th {
-  background-color: #1abc9c;
+  background-color: #6c5ce7;
   color: white;
   font-weight: bold;
   text-transform: uppercase;
@@ -66,16 +73,18 @@ tbody tr:hover {
 }
 
 td {
-  background-color: #b4d4d3;
+  background-color: transparent;
   font-size: 14px;
+  color: #333;
 }
 
 td:last-child {
-  background-color: #ffe6e6;
+  background-color: transparent;
 }
 
 td:first-child, th:first-child {
   text-align: left;
+  color: #2c3e50;
 }
 
 @media (max-width: 768px) {
@@ -87,5 +96,45 @@ td:first-child, th:first-child {
   th, td {
     font-size: 14px;
     padding: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+
+  thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  tr {
+    margin: 0 0 20px 0;
+  }
+
+  tr:nth-child(even) {
+    background-color: transparent;
+  }
+
+  td {
+    border: none;
+    border-bottom: 1px solid #eee;
+    position: relative;
+    padding-left: 50%;
+    text-align: left;
+  }
+
+  td:before {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    content: attr(data-label);
+    color: #6c5ce7;
+    font-weight: bold;
   }
 }
