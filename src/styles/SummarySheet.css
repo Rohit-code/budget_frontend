@@ -1,13 +1,13 @@
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f9;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f0f2f5;
   margin: 0;
   padding: 0;
 }
 
 .container {
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 20px auto;
   padding: 20px;
 }
 
@@ -15,6 +15,7 @@ h2 {
   color: #333;
   text-align: center;
   margin-bottom: 20px;
+  font-size: 28px;
 }
 
 table {
@@ -22,19 +23,23 @@ table {
   border-collapse: collapse;
   margin-bottom: 20px;
   background-color: #fff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 thead th {
-  background-color: #4CAF50;
+  background-color: #007bff;
   color: white;
-  padding: 10px;
+  padding: 15px;
   text-align: center;
+  font-weight: bold;
+  text-transform: uppercase;
 }
 
 th, td {
   border: 1px solid #ddd;
-  padding: 10px;
+  padding: 12px;
   text-align: center;
 }
 
@@ -43,7 +48,7 @@ tbody tr:nth-child(even) {
 }
 
 tbody tr:hover {
-  background-color: #f1f1f1;
+  background-color: #e9ecef;
 }
 
 td {
@@ -52,6 +57,14 @@ td {
 
 td, th {
   font-size: 16px;
+}
+
+td:last-child {
+  background-color: #ffefef;
+}
+
+td:first-child, th:first-child {
+  text-align: left;
 }
 
 @media (max-width: 768px) {
