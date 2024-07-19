@@ -1,26 +1,39 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import '../styles/ProjectForm.css';
 
 function ProjectForm({ onProjectAdded }) {
   const [name, setName] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const [budget, setBudget] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const formatDate = (date) => {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+      };
+
+      const formattedStartDate = formatDate(startDate);
+      const formattedEndDate = formatDate(endDate);
+
       const response = await axios.post('http://localhost:5000/projects', {
         name,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: formattedStartDate,
+        end_date: formattedEndDate,
         budget: parseFloat(budget)
       });
+
       onProjectAdded(response.data);
       setName('');
-      setStartDate('');
-      setEndDate('');
+      setStartDate(null);
+      setEndDate(null);
       setBudget('');
     } catch (error) {
       console.error('Error adding project:', error);
@@ -39,11 +52,23 @@ function ProjectForm({ onProjectAdded }) {
       </div>
       <div>
         <label>Start Date:</label>
-        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
+        <DatePicker
+          selected={startDate}
+          onChange={(date) => setStartDate(date)}
+          dateFormat="dd/MM/yyyy"
+          placeholderText="dd/mm/yyyy"
+          required
+        />
       </div>
       <div>
         <label>End Date:</label>
-        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required />
+        <DatePicker
+          selected={endDate}
+          onChange={(date) => setEndDate(date)}
+          dateFormat="dd/MM/yyyy"
+          placeholderText="dd/mm/yyyy"
+          required
+        />
       </div>
       <button type="submit">Add Project</button>
     </form>

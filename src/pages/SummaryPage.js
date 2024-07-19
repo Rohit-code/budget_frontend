@@ -3,7 +3,7 @@ import axios from 'axios';
 import '../styles/SummaryPage.css';
 
 function SummaryPage() {
-  const [projects, setProjects] = useState([]);
+  const [projects, setProjects] = useState(['']);
   const [summaryData, setSummaryData] = useState([]);
 
   useEffect(() => {
