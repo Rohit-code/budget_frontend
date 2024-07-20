@@ -2,7 +2,7 @@
 
 body {
   font-family: 'Arial', sans-serif;
-  background: linear-gradient(135deg, #f8e1ff 0%, #b0eaff 100%);
+  background: linear-gradient(135deg, #d0a1df 0%, #95c6d8 100%);
   margin: 0;
   padding: 0;
 }
@@ -45,7 +45,7 @@ table {
   font-size: 16px;
   overflow: hidden;
   border-radius: 10px;
-  background-color: #f8f8f8;
+  background-color: #c3e7f5;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
