@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import axios from 'axios';
+import './App.css';
 import AddProjectPage from './pages/AddProjectPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import SummaryPage from './pages/SummaryPage';
-import FinancialYearSummary from './pages/FinancialYearSummary'; // Import the new page
-import './App.css';
-import axios from 'axios';
+import FinancialYearSummary from './pages/FinancialYearSummary';
+import FinancialYearTable from './components/FinancialYearTable';
 
 function App() {
   const [projects, setProjects] = useState([]);
+  const [financialYears, setFinancialYears] = useState([]);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -21,6 +23,20 @@ function App() {
     };
 
     fetchProjects();
+  }, []);
+
+  useEffect(() => {
+    const fetchFinancialYears = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/financial-years');
+        console.log('Financial years fetched:', response.data);  // Debugging line
+        setFinancialYears(response.data);
+      } catch (error) {
+        console.error('Error fetching financial years:', error);
+      }
+    };
+
+    fetchFinancialYears();
   }, []);
 
   const handleProjectAdded = (newProject) => {
@@ -44,7 +60,6 @@ function App() {
           <ul>
             <li><Link to="/add-project">Add Project</Link></li>
             <li><Link to="/summary">Summary</Link></li>
-            <li><Link to="/financial-year-summary">Financial Year Summary</Link></li> {/* New Link */}
             <li>
               <select onChange={(e) => {
                 const projectId = e.target.value;
@@ -58,13 +73,27 @@ function App() {
                 ))}
               </select>
             </li>
+            <li>
+              <select onChange={(e) => {
+                const year = e.target.value;
+                if (year) {
+                  window.location.href = `/financial-year-summary/${year}`;
+                }
+              }}>
+                <option value="">Select a financial year</option>
+                {financialYears.map(year => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
+            </li>
           </ul>
         </nav>
         <Routes>
           <Route path="/add-project" element={<AddProjectPage onProjectAdded={handleProjectAdded} />} />
           <Route path="/summary" element={<SummaryPage />} />
           <Route path="/project/:projectId" element={<ProjectDetailPage onDeleteProject={handleDeleteProject} />} />
-          <Route path="/financial-year-summary" element={<FinancialYearSummary />} /> {/* New Route */}
+          <Route path="/financial-year-summary/:year" element={<FinancialYearSummary />} />
+          <Route path="/financial-year-table" element={<FinancialYearTable />} />
         </Routes>
       </div>
     </Router>

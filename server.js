@@ -376,6 +376,51 @@ app.put('/projects/:id', async (req, res) => {
   }
 });
 
+// Endpoint to get financial years
+app.get('/financial-years', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT DISTINCT 
+        EXTRACT(YEAR FROM start_date) AS year
+      FROM projects
+      UNION
+      SELECT DISTINCT 
+        EXTRACT(YEAR FROM end_date) AS year
+      FROM projects
+      ORDER BY year;
+    `);
+    const years = result.rows.map(row => row.year);
+    res.json(years);
+  } catch (error) {
+    console.error('Error fetching financial years:', error);
+    res.status(500).send('Server error');
+  }
+});
+
+// Endpoint to get projects data for a specific financial year
+app.get('/projects/financial-year/:year', async (req, res) => {
+  const { year } = req.params;
+
+  try {
+    const startOfYear = `${year}-01-01`;
+    const endOfYear = `${year}-12-31`;
+
+    const result = await pool.query(`
+      SELECT p.id, p.name, p.start_date, p.end_date,
+        jsonb_object_agg(e.month, e.actual) AS expenses
+      FROM projects p
+      LEFT JOIN expenses e ON p.id = e.project_id
+      WHERE p.start_date <= $2 AND p.end_date >= $1
+      GROUP BY p.id, p.name, p.start_date, p.end_date
+    `, [startOfYear, endOfYear]);
+
+    res.send(result.rows);
+  } catch (error) {
+    console.error('Error fetching projects data for financial year:', error);
+    res.status(500).send({ error: 'Server error' });
+  }
+});
+
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
