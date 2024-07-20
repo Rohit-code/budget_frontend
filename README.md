@@ -52,7 +52,10 @@ Before running the application, ensure you have the following installed:
   );
 
   ```
-
+ ```sql
+ALTER TABLE expenses
+ADD CONSTRAINT unique_expense UNIQUE (project_id, month, category);
+ ```
 4. Configure database connection in `server.js`:
 - Replace `your_db_user`, `your_db_password`, and `your_db_name` with your PostgreSQL credentials.
 
