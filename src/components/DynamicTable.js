@@ -46,17 +46,11 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
         const actualData = {};
 
         expensesResponse.data.forEach(expense => {
-          // Correctly assign the month and category fields
-          const { month, category, budget, actual } = { 
-            month: expense.category, 
-            category: expense.month, 
-            budget: expense.budget, 
-            actual: expense.actual 
-          };
-          if (!budgetData[category]) budgetData[category] = {};
-          if (!actualData[category]) actualData[category] = {};
-          budgetData[category][month] = parseFloat(budget) || 0;
-          actualData[category][month] = parseFloat(actual) || 0;
+          const { month, category, budget, actual } = expense;
+          if (!budgetData[month]) budgetData[month] = {};
+          if (!actualData[month]) actualData[month] = {};
+          budgetData[month][category] = parseFloat(budget) || 0;
+          actualData[month][category] = parseFloat(actual) || 0;
         });
 
         console.log('Parsed budget data:', budgetData);
@@ -71,22 +65,22 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
     fetchProjectData();
   }, [projectId]);
 
-  const handleBudgetChange = (category, month, value) => {
+  const handleBudgetChange = (month, category, value) => {
     setNewBudget(prev => ({
       ...prev,
-      [category]: {
-        ...prev[category],
-        [month]: parseFloat(value) || 0
+      [month]: {
+        ...prev[month],
+        [category]: parseFloat(value) || 0
       }
     }));
   };
 
-  const handleActualChange = (category, month, value) => {
+  const handleActualChange = (month, category, value) => {
     setNewActual(prev => ({
       ...prev,
-      [category]: {
-        ...prev[category],
-        [month]: parseFloat(value) || 0
+      [month]: {
+        ...prev[month],
+        [category]: parseFloat(value) || 0
       }
     }));
   };
@@ -108,9 +102,9 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
     // Calculate total actual expenses
     let totalActualExpenses = 0;
 
-    categories.forEach(category => {
-      months.forEach(month => {
-        totalActualExpenses += newActual[category]?.[month] || 0;
+    months.forEach(month => {
+      categories.forEach(category => {
+        totalActualExpenses += newActual[month]?.[category] || 0;
       });
     });
 
@@ -136,7 +130,7 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
   const calculateCashOutflow = (month, type) => {
     const expensesForMonth = type === 'budget' ? newBudget : newActual;
     return categories.reduce((sum, category) => {
-      const value = expensesForMonth[category]?.[month] || 0;
+      const value = expensesForMonth[month]?.[category] || 0;
       return sum + value;
     }, 0);
   };
@@ -181,22 +175,22 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
                     {isEditable ? (
                       <input
                         type="number"
-                        value={newBudget[category]?.[month] || 0}
-                        onChange={e => handleBudgetChange(category, month, e.target.value)}
+                        value={newBudget[month]?.[category] || 0}
+                        onChange={e => handleBudgetChange(month, category, e.target.value)}
                       />
                     ) : (
-                      <span>{newBudget[category]?.[month] || expenses.find(e => e.category === category && e.month === month)?.budget || 0}</span>
+                      <span>{newBudget[month]?.[category] || expenses.find(e => e.category === category && e.month === month)?.budget || 0}</span>
                     )}
                   </td>
                   <td>
                     {isEditable ? (
                       <input
                         type="number"
-                        value={newActual[category]?.[month] || 0}
-                        onChange={e => handleActualChange(category, month, e.target.value)}
+                        value={newActual[month]?.[category] || 0}
+                        onChange={e => handleActualChange(month, category, e.target.value)}
                       />
                     ) : (
-                      <span>{newActual[category]?.[month] || expenses.find(e => e.category === category && e.month === month)?.actual || 0}</span>
+                      <span>{newActual[month]?.[category] || expenses.find(e => e.category === category && e.month === month)?.actual || 0}</span>
                     )}
                   </td>
                 </React.Fragment>
@@ -205,7 +199,6 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
           ))}
         </tbody>
       </table>
-      {/* <button onClick={handleAddMonth}>Add Month</button> */}
       <button onClick={handleSave}>Save</button>
       <button onClick={() => setIsEditable(!isEditable)}>{isEditable ? 'Done' : 'Edit'}</button>
     </div>

@@ -129,6 +129,11 @@ app.post('/projects/:id/expenses', async (req, res) => {
 
   try {
     for (const month in newBudget) {
+      // Validate month format
+      if (!/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}$/.test(month)) {
+        return res.status(400).send({ error: `Invalid month format: ${month}` });
+      }
+
       for (const category in newBudget[month]) {
         await pool.query(
           'INSERT INTO expenses (project_id, month, category, budget, actual) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (project_id, month, category) DO UPDATE SET budget = $4, actual = $5',
@@ -142,6 +147,7 @@ app.post('/projects/:id/expenses', async (req, res) => {
     res.status(500).send({ error: 'Server error' });
   }
 });
+
 
 // Endpoint to get expenses for a project
 app.get('/projects/:id/expenses', async (req, res) => {
