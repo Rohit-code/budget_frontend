@@ -109,8 +109,10 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
     });
 
     if (totalActualExpenses > projectBudget) {
-      setError(`The total actual expenses exceed the project budget of ${projectBudget}.`);
-      return;
+      const proceed = window.confirm(`The total actual expenses exceed the project budget of ${projectBudget}. Do you still want to save the expenses?`);
+      if (!proceed) {
+        return;
+      }
     }
 
     // If validation passes, clear the error and proceed with saving
