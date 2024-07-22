@@ -10,11 +10,24 @@ function ProjectDetailPage({ onDeleteProject }) {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   useEffect(() => {
     const fetchProject = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/projects/${projectId}`);
-        setProject(response.data);
+        const projectData = {
+          ...response.data,
+          start_date: formatDate(response.data.start_date),
+          end_date: formatDate(response.data.end_date)
+        };
+        setProject(projectData);
       } catch (error) {
         setError(error.response ? error.response.data.error : 'Error fetching project');
       }
