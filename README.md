@@ -67,6 +67,7 @@ Server will run on `http://localhost:5000`.
 
 2. Install dependencies:
 ```npm install axios```
+```npm install moment```
 
 
 3. Start the React application:
