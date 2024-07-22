@@ -1,3 +1,5 @@
+/* src/styles/SummaryPage.css */
+
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: linear-gradient(to right, #ece9e6, #dc9adf);
@@ -9,7 +11,7 @@ body {
   max-width: 1200px;
   margin: 40px auto;
   padding: 30px;
-  background-color: #b2dbe2;
+  background: linear-gradient(135deg, #f8e1ff 0%, #b0eaff 100%);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   border-radius: 15px;
   transition: all 0.3s ease-in-out;
@@ -20,7 +22,7 @@ body {
 }
 
 h2 {
-  color: #4CAF50;
+  color: #ff6f61; /* Secondary color */
   text-align: center;
   margin-bottom: 30px;
   font-size: 32px;
@@ -31,15 +33,15 @@ table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 20px;
-  background-color: #d5a4ec;
+  background-color: #ffffff; /* Base table background */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border-radius: 12px;
   overflow: hidden;
 }
 
 thead th {
-  background-color: #4CAF50;
-  color: rgb(194, 237, 243);
+  background-color: #4CAF50; /* Primary color */
+  color: #ffffff;
   padding: 15px;
   text-align: center;
   font-weight: bold;
@@ -54,24 +56,25 @@ th, td {
 }
 
 tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
+  background-color: #f9f9f9; /* Alternating row color */
 }
 
 tbody tr:hover {
-  background-color: #e0f7fa;
+  background-color: #e0f7fa; /* Hover effect color */
 }
 
 td {
-  color: #333;
+  color: #333; /* Main text color */
   font-size: 16px;
 }
 
 td:last-child {
-  background-color: #ffcccc;
+  background-color: #ffd6d6; /* Light coral for the last column */
 }
 
 td:first-child, th:first-child {
   text-align: left;
+  color: #4CAF50; /* Accent color for the first column */
 }
 
 @media (max-width: 768px) {
@@ -109,7 +112,7 @@ td:first-child, th:first-child {
     padding-right: 10px;
     white-space: nowrap;
     content: attr(data-label);
-    color: #007bff;
+    color: #007bff; /* Primary color */
     font-weight: bold;
   }
 }
@@ -118,35 +121,4 @@ td:first-child, th:first-child {
   .container {
     padding: 15px;
   }
-}
-
-/* Additional styling for better aesthetics */
-.container {
-  background: linear-gradient(135deg, #f8e1ff 0%, #b0eaff 100%);
-}
-
-h2 {
-  color: #ff6f61;
-}
-
-thead th {
-  background-color: #ff6f61;
-}
-
-tbody tr:hover {
-  background-color: #ffd6d6;
-}
-
-td, th {
-  font-size: 16px;
-  color: #333;
-}
-
-td:last-child {
-  background-color: #ffd6d6;
-}
-
-td:first-child, th:first-child {
-  text-align: left;
-  color: #4CAF50;
 }
