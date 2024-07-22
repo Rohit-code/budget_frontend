@@ -19,6 +19,14 @@ function SummaryPage() {
     fetchProjects();
   }, []);
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   useEffect(() => {
     const fetchSummaryData = async () => {
       try {
@@ -29,8 +37,8 @@ function SummaryPage() {
           return {
             projectId: project.id,
             projectName: project.name,
-            start_date: responseProject.data.start_date,
-            end_date: responseProject.data.end_date,
+            start_date: formatDate(responseProject.data.start_date),
+            end_date: formatDate(responseProject.data.end_date),
             summary: responseSummary.data
           };
         }));
