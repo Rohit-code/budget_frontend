@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const FiscalYearDropdown = ({ onSelectYear }) => {
+const FiscalYearDropdown = ({ startDate, endDate, onSelectYear }) => {
   const [fiscalYears, setFiscalYears] = useState([]);
   const [selectedYear, setSelectedYear] = useState('');
 
   useEffect(() => {
     const fetchFiscalYears = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/fiscal-years');
+        const response = await axios.get('http://localhost:5000/financial-years', {
+          params: {
+            start_date: startDate,
+            end_date: endDate
+          }
+        });
+        console.log('Fetched fiscal years:', response.data); // Debug log
         setFiscalYears(response.data);
       } catch (error) {
         console.error('Error fetching fiscal years:', error);
@@ -16,7 +22,7 @@ const FiscalYearDropdown = ({ onSelectYear }) => {
     };
 
     fetchFiscalYears();
-  }, []);
+  }, [startDate, endDate]);
 
   const handleChange = (event) => {
     const year = event.target.value;

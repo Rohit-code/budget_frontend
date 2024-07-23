@@ -1,73 +1,79 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
-import '../styles/FinancialYearSummary.css';
 
-const FinancialYearSummary = () => {
-  const { year } = useParams();
-  const [projectsData, setProjectsData] = useState([]);
-  const [error, setError] = useState(null);
+const FinancialYearSummary = ({ year }) => {
+  const [expenses, setExpenses] = useState([]);
 
   useEffect(() => {
     if (year) {
-      const fetchProjectsData = async () => {
+      const [startYear, endYear] = year.split('/');
+      const fetchExpenses = async () => {
         try {
-          const response = await axios.get(`http://localhost:5000/projects/financial-year/${year}`);
-          console.log('Fetched Data:', response.data); // Debug log
-          setProjectsData(response.data);
-          setError(null);
+          const response = await axios.get(`http://localhost:5000/projects/financial-year/${startYear}/${endYear}`);
+          setExpenses(response.data);
         } catch (error) {
-          console.error('Error fetching projects data for financial year:', error);
-          setError('Failed to fetch projects data.');
+          console.error('Error fetching expenses:', error);
         }
       };
 
-      fetchProjectsData();
+      fetchExpenses();
     }
   }, [year]);
 
-  if (!year) return <div>Select a financial year to see the summary.</div>;
-  if (error) return <div>{error}</div>;
+  const getExpensesByYearPart = (startYear, endYear) => {
+    const startYearPart = {};
+    const endYearPart = {};
 
-  const getMonthString = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleString('default', { month: 'short', year: 'numeric' });
+    expenses.forEach(expense => {
+      const monthYear = expense.month.split(' ');
+      const month = monthYear[0];
+      const expenseYear = monthYear[1];
+
+      if (expenseYear === startYear && ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].includes(month)) {
+        startYearPart[expense.month] = expense.total_expense;
+      } else if (expenseYear === endYear && ['Jan', 'Feb', 'Mar'].includes(month)) {
+        endYearPart[expense.month] = expense.total_expense;
+      }
+    });
+
+    return { startYearPart, endYearPart };
   };
 
-  const getMonthlyExpenses = (expenses) => {
-    return Object.entries(expenses).map(([key, value]) => ({
-      month: key,
-      amount: value
-    }));
-  };
+  const renderTable = (expenses) => (
+    <table>
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Total Actual Expenses</th>
+        </tr>
+      </thead>
+      <tbody>
+        {Object.entries(expenses).map(([month, total]) => (
+          <tr key={month}>
+            <td>{month}</td>
+            <td>{total.toFixed(2)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+
+  if (!year) {
+    return <div>Please select a financial year.</div>;
+  }
+
+  const { startYearPart, endYearPart } = getExpensesByYearPart(year.split('/')[0], year.split('/')[1]);
 
   return (
     <div>
-      <h2>Financial Year Summary for {year}</h2>
-      {projectsData.length > 0 ? (
-        <table>
-          <thead>
-            <tr>
-              <th>Project Name</th>
-              <th>Month</th>
-              <th>Monthly Expenses</th>
-            </tr>
-          </thead>
-          <tbody>
-            {projectsData.map(project => {
-              const monthlyExpenses = getMonthlyExpenses(project.expenses);
-              return monthlyExpenses.map(expense => (
-                <tr key={`${project.id}-${expense.month}`}>
-                  <td>{project.name}</td>
-                  <td>{expense.month}</td>
-                  <td>{expense.amount}</td>
-                </tr>
-              ));
-            })}
-          </tbody>
-        </table>
-      ) : (
-        <div>No data available for the selected year.</div>
+      <h2>Financial Year Summary</h2>
+      {year && (
+        <div>
+          <h3>Financial Year {year.split('/')[0]} (April to December)</h3>
+          {renderTable(startYearPart)}
+          <h3>Financial Year {year.split('/')[1]} (January to March)</h3>
+          {renderTable(endYearPart)}
+        </div>
       )}
     </div>
   );

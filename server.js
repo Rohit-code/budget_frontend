@@ -382,20 +382,32 @@ app.put('/projects/:id', async (req, res) => {
   }
 });
 
-// Endpoint to get financial years
+// Endpoint to get financial years based on start and end dates
 app.get('/financial-years', async (req, res) => {
+  let { start_date, end_date } = req.query;
+  
+  // If no dates are provided, use a default wide range
+  if (!start_date || !end_date) {
+    start_date = '1900-01-01'; // a very early date
+    end_date = '2200-12-31'; // a very future date
+  }
+
+  console.log('Received start_date:', start_date, 'end_date:', end_date); // Debug log
+
   try {
     const result = await pool.query(`
-      SELECT DISTINCT 
-        EXTRACT(YEAR FROM start_date) AS year
+      SELECT DISTINCT
+        CASE
+          WHEN EXTRACT(MONTH FROM start_date) >= 4 THEN EXTRACT(YEAR FROM start_date) || '/' || (EXTRACT(YEAR FROM start_date) + 1)
+          ELSE (EXTRACT(YEAR FROM start_date) - 1) || '/' || EXTRACT(YEAR FROM start_date)
+        END AS fiscal_year
       FROM projects
-      UNION
-      SELECT DISTINCT 
-        EXTRACT(YEAR FROM end_date) AS year
-      FROM projects
-      ORDER BY year;
-    `);
-    const years = result.rows.map(row => row.year);
+      WHERE start_date BETWEEN $1 AND $2 OR end_date BETWEEN $1 AND $2
+      ORDER BY fiscal_year;
+    `, [start_date, end_date]);
+
+    console.log('Query result:', result.rows); // Debug log
+    const years = result.rows.map(row => row.fiscal_year);
     res.json(years);
   } catch (error) {
     console.error('Error fetching financial years:', error);
@@ -403,27 +415,143 @@ app.get('/financial-years', async (req, res) => {
   }
 });
 
-// Endpoint to get projects data for a specific financial year
-app.get('/projects/financial-year/:year', async (req, res) => {
-  const { year } = req.params;
+// Endpoint to fetch projects and expenses for a specific financial year
+// app.get('/financial-year-summary/:year', async (req, res) => {
+//   const { year } = req.params;
+//   const [startYear, endYear] = year.split('/');
+
+//   const startOfYear1 = `${startYear}-04-01`;
+//   const endOfYear1 = `${startYear}-12-31`;
+//   const startOfYear2 = `${endYear}-01-01`;
+//   const endOfYear2 = `${endYear}-03-31`;
+
+//   try {
+//     // Fetch expenses for the first part of the financial year
+//     const result1 = await pool.query(`
+//       SELECT
+//         EXTRACT(MONTH FROM e.date) AS month,
+//         COALESCE(SUM(e.actual), 0) AS total_actual_expenses
+//       FROM expenses e
+//       JOIN projects p ON p.id = e.project_id
+//       WHERE e.date BETWEEN $1 AND $2
+//       AND p.start_date <= $2 AND p.end_date >= $1
+//       GROUP BY EXTRACT(MONTH FROM e.date)
+//       ORDER BY EXTRACT(MONTH FROM e.date);
+//     `, [startOfYear1, endOfYear1]);
+
+//     // Fetch expenses for the second part of the financial year
+//     const result2 = await pool.query(`
+//       SELECT
+//         EXTRACT(MONTH FROM e.date) AS month,
+//         COALESCE(SUM(e.actual), 0) AS total_actual_expenses
+//       FROM expenses e
+//       JOIN projects p ON p.id = e.project_id
+//       WHERE e.date BETWEEN $1 AND $2
+//       AND p.start_date <= $2 AND p.end_date >= $1
+//       GROUP BY EXTRACT(MONTH FROM e.date)
+//       ORDER BY EXTRACT(MONTH FROM e.date);
+//     `, [startOfYear2, endOfYear2]);
+
+//     // Combine results from both financial years
+//     const expenses = {};
+//     result1.rows.forEach(row => {
+//       const monthName = new Date(Date.UTC(0, row.month - 1)).toLocaleString('en-US', { month: 'short' }) + ` ${startYear}`;
+//       expenses[monthName] = (expenses[monthName] || 0) + parseFloat(row.total_actual_expenses);
+//     });
+//     result2.rows.forEach(row => {
+//       const monthName = new Date(Date.UTC(0, row.month - 1)).toLocaleString('en-US', { month: 'short' }) + ` ${endYear}`;
+//       expenses[monthName] = (expenses[monthName] || 0) + parseFloat(row.total_actual_expenses);
+//     });
+
+//     res.json(expenses);
+//   } catch (error) {
+//     console.error('Error fetching financial year summary:', error);
+//     res.status(500).send('Server error');
+//   }
+// });
+
+// Utility function to get start and end dates for a financial year
+const getFinancialYearDates = (year) => {
+  const startDate = new Date(`${year}-04-01`);
+  const endDate = new Date(`${parseInt(year, 10) + 1}-03-31`);
+  return { startDate, endDate };
+};
+
+app.get('/projects/financial-year/:startYear/:endYear', async (req, res) => {
+  const { startYear, endYear } = req.params;
+
+  // Validate year format
+  if (!/^\d{4}$/.test(startYear) || !/^\d{4}$/.test(endYear)) {
+    return res.status(400).send('Invalid year format. Please provide years in YYYY format.');
+  }
+
+  const { startDate, endDate } = getFinancialYearDates(startYear);
 
   try {
-    const startOfYear = `${year}-01-01`;
-    const endOfYear = `${year}-12-31`;
+    const client = await pool.connect();
 
-    const result = await pool.query(`
-      SELECT p.id, p.name, p.start_date, p.end_date,
-        jsonb_object_agg(e.month, e.actual) AS expenses
-      FROM projects p
-      LEFT JOIN expenses e ON p.id = e.project_id
-      WHERE p.start_date <= $2 AND p.end_date >= $1
-      GROUP BY p.id, p.name, p.start_date, p.end_date
-    `, [startOfYear, endOfYear]);
+    const query = `
+      WITH date_range AS (
+        SELECT
+          $1::date AS start_date,
+          $2::date AS end_date
+      ),
+      projects_in_range AS (
+        SELECT
+          p.id,
+          p.name,
+          p.start_date,
+          p.end_date,
+          p.budget,
+          CASE
+            WHEN p.end_date <= (SELECT end_date FROM date_range) THEN
+              p.budget * (DATE_PART('month', AGE(p.end_date, p.start_date)) + 1) / (DATE_PART('month', AGE(p.end_date, p.start_date)) + 1)
+            ELSE
+              p.budget * (DATE_PART('month', AGE(LEAST(p.end_date, (SELECT end_date FROM date_range)), GREATEST(p.start_date, (SELECT start_date FROM date_range)))) + 1) / (DATE_PART('month', AGE(p.end_date, p.start_date)) + 1)
+          END AS adjusted_budget,
+          CASE
+            WHEN p.start_date < (SELECT start_date FROM date_range) AND p.end_date > (SELECT end_date FROM date_range) THEN
+              p.budget - (p.budget * (DATE_PART('month', AGE(LEAST(p.end_date, (SELECT end_date FROM date_range)), (SELECT start_date FROM date_range))) + 1) / (DATE_PART('month', AGE(p.end_date, p.start_date)) + 1))
+            ELSE
+              p.budget
+          END AS carry_over_budget
+        FROM projects p
+        WHERE p.start_date <= (SELECT end_date FROM date_range)
+          AND p.end_date >= (SELECT start_date FROM date_range)
+      ),
+      expenses_aggregated AS (
+        SELECT
+          p.id,
+          p.name,
+          e.month,
+          SUM(e.actual) AS total_expense
+        FROM projects_in_range p
+        LEFT JOIN expenses e ON p.id = e.project_id
+        WHERE TO_DATE(e.month, 'Mon YYYY') BETWEEN (SELECT start_date FROM date_range) AND (SELECT end_date FROM date_range)
+        GROUP BY p.id, p.name, e.month
+      )
+      SELECT
+        p.id,
+        p.name,
+        p.start_date,
+        p.end_date,
+        p.adjusted_budget,
+        p.carry_over_budget,
+        COALESCE(jsonb_object_agg(e.month, e.total_expense) FILTER (WHERE e.total_expense IS NOT NULL), '{}'::jsonb) AS expenses
+      FROM projects_in_range p
+      LEFT JOIN expenses_aggregated e ON p.id = e.id
+      GROUP BY p.id, p.name, p.start_date, p.end_date, p.adjusted_budget, p.carry_over_budget;
+    `;
 
-    res.send(result.rows);
-  } catch (error) {
-    console.error('Error fetching projects data for financial year:', error);
-    res.status(500).send({ error: 'Server error' });
+    const values = [startDate, endDate];
+    const result = await client.query(query, values);
+
+    client.release();
+
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error('Error fetching projects data for financial year:', err);
+    res.status(500).send('Internal Server Error');
   }
 });
 
