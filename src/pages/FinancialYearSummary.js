@@ -17,12 +17,25 @@ const FinancialYearSummary = () => {
   const fetchFinancialYearSummary = async (startYear) => {
     try {
       const response = await axios.get(`http://localhost:5000/projects/financial-year/${startYear}`);
-      setExpenses(response.data);
+      const fetchedExpenses = response.data.map(expense => ({
+        ...expense,
+        budget_spent: parseFloat(expense.budget_spent),
+        carry_over_budget: parseFloat(expense.carry_over_budget),
+      }));
+      setExpenses(fetchedExpenses);
       setError(null);
     } catch (error) {
       console.error('Error fetching expenses:', error);
       setError('Error fetching expenses.');
     }
+  };
+
+  const sortMonths = (expenses) => {
+    return Object.entries(expenses).sort(([monthA], [monthB]) => {
+      const dateA = new Date(Date.parse(monthA + ' 1, ' + startYear));
+      const dateB = new Date(Date.parse(monthB + ' 1, ' + startYear));
+      return dateA - dateB;
+    });
   };
 
   return (
@@ -38,7 +51,7 @@ const FinancialYearSummary = () => {
               <th>Project Name</th>
               <th>Start Date</th>
               <th>End Date</th>
-              <th>Adjusted Budget</th>
+              <th>Budget Spent</th>
               <th>Carry Over Budget</th>
               <th>Expenses</th>
             </tr>
@@ -49,15 +62,15 @@ const FinancialYearSummary = () => {
                 <td>{expense.name}</td>
                 <td>{new Date(expense.start_date).toLocaleDateString()}</td>
                 <td>{new Date(expense.end_date).toLocaleDateString()}</td>
-                <td>${expense.adjusted_budget.toFixed(2)}</td>
-                <td>${expense.carry_over_budget.toFixed(2)}</td>
+                <td>Rs.{expense.budget_spent.toFixed(2)}</td>
+                <td>Rs.{expense.carry_over_budget.toFixed(2)}</td>
                 <td>
                   <table className="inner-expenses-table">
                     <tbody>
-                      {expense.expenses ? Object.entries(expense.expenses).map(([month, amount]) => (
+                      {expense.expenses ? sortMonths(expense.expenses).map(([month, amount]) => (
                         <tr key={month}>
                           <td>{month}</td>
-                          <td>${amount.toFixed(2)}</td>
+                          <td>Rs.{amount.toFixed(2)}</td>
                         </tr>
                       )) : (
                         <tr>
