@@ -1,0 +1,140 @@
+/* src/styles/SummaryPage.css */
+
+body {
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(135deg, #d0a1df 0%, #95c6d8 100%);
+  margin: 0;
+  padding: 0;
+}
+
+.summary-page-container {
+  width: 80%;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #e1e9d9;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
+}
+
+.summary-page-container:hover {
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+h1, h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+h1 {
+  font-size: 36px;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #34495e;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-size: 16px;
+  overflow: hidden;
+  border-radius: 10px;
+  background-color: #c3e7f5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: center;
+  transition: background-color 0.3s ease-in-out;
+}
+
+thead th {
+  background-color: #6c5ce7;
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #ecf0f1;
+}
+
+tbody tr:hover {
+  background-color: #d0e4e3;
+}
+
+td {
+  background-color: transparent;
+  font-size: 14px;
+  color: #333;
+}
+
+td:last-child {
+  background-color: transparent;
+}
+
+td:first-child, th:first-child {
+  text-align: left;
+  color: #2c3e50;
+}
+
+@media (max-width: 768px) {
+  .summary-page-container {
+    width: 95%;
+    padding: 20px;
+  }
+
+  th, td {
+    font-size: 14px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+
+  thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  tr {
+    margin: 0 0 20px 0;
+  }
+
+  tr:nth-child(even) {
+    background-color: transparent;
+  }
+
+  td {
+    border: none;
+    border-bottom: 1px solid #eee;
+    position: relative;
+    padding-left: 50%;
+    text-align: left;
+  }
+
+  td:before {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    content: attr(data-label);
+    color: #6c5ce7;
+    font-weight: bold;
+  }
+}

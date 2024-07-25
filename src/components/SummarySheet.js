@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import '../styles/SummarySheet.css'; // Import the CSS file
 
 function SummarySheet() {
   const [summary, setSummary] = useState([]);
@@ -42,7 +43,7 @@ function SummarySheet() {
             <th>End Date</th>
             <th>Total Budget</th>
             <th>Total Actual</th>
-            <th>Consumed Actual</th>
+            <th>Remaining Actual</th>
             <th>Consumed Budget</th>
           </tr>
         </thead>

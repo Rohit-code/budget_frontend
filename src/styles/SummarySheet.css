@@ -1,0 +1,124 @@
+/* src/styles/SummaryPage.css */
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(to right, #ece9e6, #dc9adf);
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 30px;
+  background: linear-gradient(135deg, #f8e1ff 0%, #b0eaff 100%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border-radius: 15px;
+  transition: all 0.3s ease-in-out;
+}
+
+.container:hover {
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+h2 {
+  color: #ff6f61; /* Secondary color */
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  background-color: #ffffff; /* Base table background */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+thead th {
+  background-color: #4CAF50; /* Primary color */
+  color: #ffffff;
+  padding: 15px;
+  text-align: center;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: center;
+  transition: background-color 0.3s ease-in-out;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f9f9f9; /* Alternating row color */
+}
+
+tbody tr:hover {
+  background-color: #e0f7fa; /* Hover effect color */
+}
+
+td {
+  color: #333; /* Main text color */
+  font-size: 16px;
+}
+
+td:last-child {
+  background-color: #ffd6d6; /* Light coral for the last column */
+}
+
+td:first-child, th:first-child {
+  text-align: left;
+  color: #4CAF50; /* Accent color for the first column */
+}
+
+@media (max-width: 768px) {
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+
+  thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  tr {
+    margin: 0 0 20px 0;
+  }
+
+  tr:nth-child(even) {
+    background-color: transparent;
+  }
+
+  td {
+    border: none;
+    border-bottom: 1px solid #b4dbeb;
+    position: relative;
+    padding-left: 50%;
+    text-align: left;
+  }
+
+  td:before {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    content: attr(data-label);
+    color: #007bff; /* Primary color */
+    font-weight: bold;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 15px;
+  }
+}

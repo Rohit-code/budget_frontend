@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DynamicTable from '../components/DynamicTable';
+import '../styles/ProjectDetailPage.css';
 
 function ProjectDetailPage({ onDeleteProject }) {
   const { projectId } = useParams();
@@ -30,14 +31,16 @@ function ProjectDetailPage({ onDeleteProject }) {
   };
 
   return (
-    <div>
+    <div className="project-detail-container">
       {error ? (
         <p>{error}</p>
       ) : project ? (
         <>
           <h2>Project: {project.name}</h2>
-          <p>Start Date: {project.start_date}</p>
-          <p>End Date: {project.end_date}</p>
+          <div className="detail-info">
+            <p>Start Date: {project.start_date}</p>
+            <p>End Date: {project.end_date}</p>
+          </div>
           <DynamicTable
             projectId={project.id}
             projectStartDate={project.start_date}

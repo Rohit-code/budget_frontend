@@ -1,0 +1,92 @@
+/* src/styles/AddProjectPage.css */
+
+body {
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(120deg, #f0f8f7, #a8edea);
+  margin: 0;
+  padding: 0;
+}
+
+.add-project-container {
+  margin: 40px auto;
+  padding: 30px;
+  width: 80%;
+  max-width: 600px;
+  border-radius: 15px;
+  background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  color: #333;
+  transition: all 0.3s ease-in-out;
+}
+
+.add-project-container:hover {
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.add-project-container h2 {
+  text-align: center;
+  color: #444;
+  margin-bottom: 30px;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: bold;
+}
+
+input[type="text"], input[type="number"], textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+input[type="text"]:focus, input[type="number"]:focus, textarea:focus {
+  border-color: #ff9a9e;
+  box-shadow: 0 0 8px rgba(255, 154, 158, 0.2);
+}
+
+button {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background-color: #ff9a9e;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+button:hover {
+  background-color: #ff6f71;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .add-project-container {
+    width: 95%;
+    padding: 20px;
+  }
+
+  input[type="text"], input[type="number"], textarea {
+    padding: 10px;
+  }
+
+  button {
+    padding: 10px;
+    font-size: 14px;
+  }
+}
