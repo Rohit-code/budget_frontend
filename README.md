@@ -146,7 +146,3 @@ Before running the application, ensure you have the following installed:
 
 - `axios`: Promise-based HTTP client for the browser and Node.js
 - `react-router-dom`: Declarative routing for React.js
-
-## License
-
-This project is licensed under the [ISC License](https://opensource.org/licenses/ISC). It is not intended for commercial purposes. For more details, see the [LICENSE](LICENSE) file.
