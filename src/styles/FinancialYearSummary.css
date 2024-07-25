@@ -1,29 +1,80 @@
+/* General table styles */
 table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-family: Arial, sans-serif;
+}
+
+/* Header styles */
+thead {
+  background-color: #4CAF50; /* Darker green */
+  color: white;
+  text-align: left;
+}
+
+/* Header and cell styles */
+th, td {
+  border: 1px solid #ddd; /* Light gray border */
+  padding: 12px; /* Increased padding for better spacing */
+  text-align: left;
+}
+
+/* Zebra striping for rows */
+tr:nth-child(even) {
+  background-color: #f9f9f9; /* Light gray */
+}
+
+/* Hover effect */
+tr:hover {
+  background-color: #f1f1f1; /* Slightly darker gray */
+}
+
+/* Additional styling */
+th {
+  font-weight: bold;
+}
+
+td {
+  font-size: 14px;
+}
+
+/* Responsive table styles */
+@media screen and (max-width: 600px) {
+  table {
     width: 100%;
-    border-collapse: collapse;
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
   }
-  
-  thead {
-    background-color: #4CAF50;
-    color: white;
-  }
-  
+
   th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
+    display: block;
+    text-align: right;
+    padding: 10px;
+    border: none;
   }
-  
-  tr:nth-child(even) {
-    background-color: #f2f2f2;
-  }
-  
-  tr:hover {
-    background-color: #ddd;
-  }
-  
+
   th {
-    padding-top: 12px;
-    padding-bottom: 12px;
-    text-align: left;
+    background-color: #4CAF50; /* Keep header color */
+    color: white;
+    text-align: center;
   }
-  
+
+  td {
+    border-bottom: 1px solid #ddd;
+    position: relative;
+    padding-left: 50%;
+  }
+
+  td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    width: 50%;
+    padding-left: 10px;
+    white-space: nowrap;
+    font-weight: bold;
+    color: #4CAF50; /* Header color for labels */
+  }
+}

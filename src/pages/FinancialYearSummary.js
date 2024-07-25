@@ -1,79 +1,76 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import '../styles/FinancialYearSummary.css';
 
-const FinancialYearSummary = ({ year }) => {
+const FinancialYearSummary = () => {
+  const { startYear } = useParams();
   const [expenses, setExpenses] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (year) {
-      const [startYear, endYear] = year.split('/');
-      const fetchExpenses = async () => {
-        try {
-          const response = await axios.get(`http://localhost:5000/projects/financial-year/${startYear}/${endYear}`);
-          setExpenses(response.data);
-        } catch (error) {
-          console.error('Error fetching expenses:', error);
-        }
-      };
-
-      fetchExpenses();
+    if (startYear) {
+      fetchFinancialYearSummary(startYear);
     }
-  }, [year]);
+  }, [startYear]);
 
-  const getExpensesByYearPart = (startYear, endYear) => {
-    const startYearPart = {};
-    const endYearPart = {};
-
-    expenses.forEach(expense => {
-      const monthYear = expense.month.split(' ');
-      const month = monthYear[0];
-      const expenseYear = monthYear[1];
-
-      if (expenseYear === startYear && ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].includes(month)) {
-        startYearPart[expense.month] = expense.total_expense;
-      } else if (expenseYear === endYear && ['Jan', 'Feb', 'Mar'].includes(month)) {
-        endYearPart[expense.month] = expense.total_expense;
-      }
-    });
-
-    return { startYearPart, endYearPart };
+  const fetchFinancialYearSummary = async (startYear) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/projects/financial-year/${startYear}`);
+      setExpenses(response.data);
+      setError(null);
+    } catch (error) {
+      console.error('Error fetching expenses:', error);
+      setError('Error fetching expenses.');
+    }
   };
 
-  const renderTable = (expenses) => (
-    <table>
-      <thead>
-        <tr>
-          <th>Month</th>
-          <th>Total Actual Expenses</th>
-        </tr>
-      </thead>
-      <tbody>
-        {Object.entries(expenses).map(([month, total]) => (
-          <tr key={month}>
-            <td>{month}</td>
-            <td>{total.toFixed(2)}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-
-  if (!year) {
-    return <div>Please select a financial year.</div>;
-  }
-
-  const { startYearPart, endYearPart } = getExpensesByYearPart(year.split('/')[0], year.split('/')[1]);
-
   return (
-    <div>
-      <h2>Financial Year Summary</h2>
-      {year && (
-        <div>
-          <h3>Financial Year {year.split('/')[0]} (April to December)</h3>
-          {renderTable(startYearPart)}
-          <h3>Financial Year {year.split('/')[1]} (January to March)</h3>
-          {renderTable(endYearPart)}
-        </div>
+    <div className="financial-year-summary">
+      <h2>Financial Year Summary {startYear}</h2>
+      {error && <p>{error}</p>}
+      {expenses.length === 0 ? (
+        <p>No expenses found for this financial year.</p>
+      ) : (
+        <table className="expenses-table">
+          <thead>
+            <tr>
+              <th>Project Name</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Adjusted Budget</th>
+              <th>Carry Over Budget</th>
+              <th>Expenses</th>
+            </tr>
+          </thead>
+          <tbody>
+            {expenses.map(expense => (
+              <tr key={expense.id}>
+                <td>{expense.name}</td>
+                <td>{new Date(expense.start_date).toLocaleDateString()}</td>
+                <td>{new Date(expense.end_date).toLocaleDateString()}</td>
+                <td>${expense.adjusted_budget.toFixed(2)}</td>
+                <td>${expense.carry_over_budget.toFixed(2)}</td>
+                <td>
+                  <table className="inner-expenses-table">
+                    <tbody>
+                      {expense.expenses ? Object.entries(expense.expenses).map(([month, amount]) => (
+                        <tr key={month}>
+                          <td>{month}</td>
+                          <td>${amount.toFixed(2)}</td>
+                        </tr>
+                      )) : (
+                        <tr>
+                          <td colSpan="2">No expenses</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );
