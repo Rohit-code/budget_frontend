@@ -29,10 +29,16 @@ Before running the application, ensure you have the following installed:
 
     ```bash
     npm init -y
-    npm install express pg cors body-parser
+    npm install express pg cors body-parser moment
     ```
 
-3. Set up PostgreSQL:
+3. Install `nodemon` as a development dependency:
+
+    ```bash
+    npm install --save-dev nodemon
+    ```
+
+4. Set up PostgreSQL:
     - Create a database named `budget_management`.
     - Create tables with the following schema:
 
@@ -56,13 +62,21 @@ Before running the application, ensure you have the following installed:
     );
     ```
 
-4. Configure the database connection in `server.js`:
+5. Configure the database connection in `server.js`:
     - Replace `your_db_user`, `your_db_password`, and `your_db_name` with your PostgreSQL credentials.
 
-5. Start the server:
+6. Add a `start` script to `package.json` to use `nodemon`:
+
+    ```json
+    "scripts": {
+      "start": "nodemon server.js"
+    }
+    ```
+
+7. Start the server:
 
     ```bash
-    node server.js
+    npm start
     ```
 
     The server will run on `http://localhost:5000`.
@@ -78,7 +92,7 @@ Before running the application, ensure you have the following installed:
 2. Install dependencies:
 
     ```bash
-    npm install axios
+    npm install axios react-router-dom
     ```
 
 3. Start the React application:
@@ -115,57 +129,18 @@ Before running the application, ensure you have the following installed:
 - **POST /register**: Register a new user.
 - **POST /login**: User login.
 
-## Example Code
+## Installed Packages
 
-Here is a sample code snippet from `server.js`:
+### Backend (Express.js)
 
-```javascript
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const { Pool } = require('pg');
+- `express`: Web framework for Node.js
+- `pg`: PostgreSQL client for Node.js
+- `cors`: Middleware to enable Cross-Origin Resource Sharing
+- `body-parser`: Middleware to parse request bodies
+- `moment`: Library for parsing, validating, manipulating, and formatting dates
+- `nodemon`: Development tool that automatically restarts the server on file changes
 
-const app = express();
-const port = 5000;
+### Frontend (React)
 
-const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'budget_management',
-  password: 'your_db_password',
-  port: 5432,
-});
-
-app.use(cors());
-app.use(bodyParser.json());
-
-// Endpoint to get all projects
-app.get('/projects', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM projects');
-    res.send(result.rows);
-  } catch (error) {
-    console.error('Error fetching projects:', error);
-    res.status(500).send({ error: 'Server error' });
-  }
-});
-
-// Endpoint to create a new project
-app.post('/projects', async (req, res) => {
-  const { name, start_date, end_date, budget } = req.body;
-  try {
-    const result = await pool.query(
-      'INSERT INTO projects (name, start_date, end_date, budget) VALUES ($1, $2, $3, $4) RETURNING *',
-      [name, start_date, end_date, budget]
-    );
-    res.send(result.rows[0]);
-  } catch (error) {
-    console.error('Error adding project:', error);
-    res.status(500).send({ error: 'Server error' });
-  }
-});
-
-// Start the server
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
-});
+- `axios`: Promise-based HTTP client for the browser and Node.js
+- `react-router-dom`: Declarative routing for React.js
