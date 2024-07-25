@@ -587,9 +587,6 @@ app.get('/fiscal-year-months', async (req, res) => {
 //     console.error('Error fetching financial year summary:', error);
 //     res.status(500).send('Server error');
 //   }
-// });
-
-// Utility function to get start and end dates for a financial year
 const getFinancialYearDates = (year) => {
   const startDate = new Date(`${year}-04-01`);
   const endDate = new Date(`${parseInt(year, 10) + 1}-03-31`);
@@ -621,19 +618,7 @@ app.get('/projects/financial-year/:startYear', async (req, res) => {
           p.name,
           p.start_date,
           p.end_date,
-          p.budget,
-          CASE
-            WHEN p.end_date <= (SELECT end_date FROM date_range) THEN
-              p.budget * (DATE_PART('month', AGE(p.end_date, p.start_date)) + 1) / (DATE_PART('month', AGE(p.end_date, p.start_date)) + 1)
-            ELSE
-              p.budget * (DATE_PART('month', AGE(LEAST(p.end_date, (SELECT end_date FROM date_range)), GREATEST(p.start_date, (SELECT start_date FROM date_range)))) + 1) / (DATE_PART('month', AGE(p.end_date, p.start_date)) + 1)
-          END AS adjusted_budget,
-          CASE
-            WHEN p.start_date < (SELECT start_date FROM date_range) AND p.end_date > (SELECT end_date FROM date_range) THEN
-              p.budget - (p.budget * (DATE_PART('month', AGE(LEAST(p.end_date, (SELECT end_date FROM date_range)), (SELECT start_date FROM date_range))) + 1) / (DATE_PART('month', AGE(p.end_date, p.start_date)) + 1))
-            ELSE
-              p.budget
-          END AS carry_over_budget
+          p.budget
         FROM projects p
         WHERE p.start_date <= (SELECT end_date FROM date_range)
           AND p.end_date >= (SELECT start_date FROM date_range)
@@ -648,18 +633,31 @@ app.get('/projects/financial-year/:startYear', async (req, res) => {
         LEFT JOIN expenses e ON p.id = e.project_id
         WHERE TO_DATE(e.month, 'Mon YYYY') BETWEEN (SELECT start_date FROM date_range) AND (SELECT end_date FROM date_range)
         GROUP BY p.id, p.name, e.month
+      ),
+      budget_spent_and_carryover AS (
+        SELECT
+          p.id,
+          p.name,
+          p.start_date,
+          p.end_date,
+          p.budget,
+          COALESCE(SUM(e.total_expense), 0) AS budget_spent,
+          p.budget - COALESCE(SUM(e.total_expense), 0) AS carry_over_budget
+        FROM projects_in_range p
+        LEFT JOIN expenses_aggregated e ON p.id = e.id
+        GROUP BY p.id, p.name, p.start_date, p.end_date, p.budget
       )
       SELECT
         p.id,
         p.name,
         p.start_date,
         p.end_date,
-        p.adjusted_budget,
+        p.budget_spent,
         p.carry_over_budget,
         COALESCE(jsonb_object_agg(e.month, e.total_expense) FILTER (WHERE e.total_expense IS NOT NULL), '{}'::jsonb) AS expenses
-      FROM projects_in_range p
+      FROM budget_spent_and_carryover p
       LEFT JOIN expenses_aggregated e ON p.id = e.id
-      GROUP BY p.id, p.name, p.start_date, p.end_date, p.adjusted_budget, p.carry_over_budget;
+      GROUP BY p.id, p.name, p.start_date, p.end_date, p.budget_spent, p.carry_over_budget;
     `;
 
     const values = [startDate, endDate];
@@ -673,7 +671,6 @@ app.get('/projects/financial-year/:startYear', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
