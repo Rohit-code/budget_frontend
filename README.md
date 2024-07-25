@@ -57,9 +57,11 @@ Before running the application, ensure you have the following installed:
       month VARCHAR(20) NOT NULL,
       category VARCHAR(50) NOT NULL,
       budget NUMERIC(10, 2),
-      actual NUMERIC(10, 2),
-      CONSTRAINT unique_expense UNIQUE (project_id, month, category)
+      actual NUMERIC(10, 2)
     );
+
+    ALTER TABLE expenses
+    ADD CONSTRAINT unique_expense UNIQUE (project_id, month, category);
     ```
 
 5. Configure the database connection in `server.js`:
@@ -144,3 +146,7 @@ Before running the application, ensure you have the following installed:
 
 - `axios`: Promise-based HTTP client for the browser and Node.js
 - `react-router-dom`: Declarative routing for React.js
+
+## License
+
+This project is licensed under the [ISC License](https://opensource.org/licenses/ISC). It is not intended for commercial purposes. For more details, see the [LICENSE](LICENSE) file.
