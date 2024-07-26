@@ -1,30 +1,117 @@
-/* src/styles/Navbar.css */
-
+/* General navbar styling */
 .navbar {
-    background-color: #333;
-    overflow: hidden;
+  background-color: #41747a;
+  padding: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* List styling */
+.navbar-list {
+  list-style: none;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+/* List items styling */
+.navbar-item {
+  margin: 0 1rem;
+}
+
+/* Link styling */
+.navbar-link {
+  color: #ecf0f1;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1.1rem;
+  position: relative;
+  padding: 0.5rem 1rem;
+  transition: color 0.3s ease;
+}
+
+/* Hover effect for links */
+.navbar-link:hover {
+  color: #3498db;
+}
+
+.navbar-link::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: #3498db;
+  visibility: hidden;
+  transform: scaleX(0);
+  transition: all 0.3s ease-in-out;
+}
+
+.navbar-link:hover::before {
+  visibility: visible;
+  transform: scaleX(1);
+}
+
+/* Select styling */
+.navbar-select {
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: none;
+  font-size: 1rem;
+  background-color: #ecf0f1;
+  color: #2c3e50;
+  transition: all 0.3s ease;
+}
+
+.navbar-select:hover {
+  background-color: #bdc3c7;
+}
+
+/* Dropdown animation */
+.navbar-select option {
+  background-color: #ecf0f1;
+  color: #2c3e50;
+}
+
+.navbar-select:focus {
+  outline: none;
+  box-shadow: 0 0 10px #3498db;
+}
+
+/* Adding animation to the links */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
   }
-  
-  .navbar ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
-  .navbar ul li {
-    float: left;
-  }
-  
-  .navbar ul li a {
-    display: block;
-    color: white;
-    text-align: center;
-    padding: 14px 16px;
-    text-decoration: none;
-  }
-  
-  .navbar ul li a:hover {
-    background-color: #ddd;
-    color: black;
-  }
-  
+}
+
+.navbar-link,
+.navbar-select {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.navbar-item:nth-child(1) .navbar-link {
+  animation-delay: 0.1s;
+}
+
+.navbar-item:nth-child(2) .navbar-link {
+  animation-delay: 0.2s;
+}
+
+.navbar-item:nth-child(3) .navbar-select {
+  animation-delay: 0.3s;
+}
+
+.navbar-item:nth-child(4) .navbar-select {
+  animation-delay: 0.4s;
+}

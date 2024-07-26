@@ -1,50 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import axios from 'axios';
 import './App.css';
 import AddProjectPage from './pages/AddProjectPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import SummaryPage from './pages/SummaryPage';
 import FinancialYearSummary from './pages/FinancialYearSummary';
-
-const ProjectNavigation = ({ projects, financialYears }) => {
-  const navigate = useNavigate();
-
-  return (
-    <nav>
-      <ul>
-        <li><Link to="/add-project">Add Project</Link></li>
-        <li><Link to="/summary">Summary</Link></li>
-        <li>
-          <select onChange={(e) => {
-            const projectId = e.target.value;
-            if (projectId) {
-              navigate(`/project/${projectId}`);
-            }
-          }}>
-            <option value="">Select a project</option>
-            {projects.map(project => (
-              <option key={project.id} value={project.id}>{project.name}</option>
-            ))}
-          </select>
-        </li>
-        <li>
-          <select onChange={(e) => {
-            const year = e.target.value;
-            if (year) {
-              navigate(`/financial-year-summary/${year}`);
-            }
-          }}>
-            <option value="">Select a financial year</option>
-            {financialYears.map(year => (
-              <option key={year.financial_year} value={year.financial_year}>{year.financial_year}</option>
-            ))}
-          </select>
-        </li>
-      </ul>
-    </nav>
-  );
-};
+import Navbar from './components/Navbar';  // Import Navbar
 
 function App() {
   const [projects, setProjects] = useState([]);
@@ -59,7 +21,6 @@ function App() {
         console.error('Error fetching projects:', error);
       }
     };
-
     fetchProjects();
   }, []);
 
@@ -72,7 +33,6 @@ function App() {
         console.error('Error fetching financial years:', error);
       }
     };
-
     fetchFinancialYears();
   }, []);
 
@@ -93,7 +53,7 @@ function App() {
     <Router>
       <div className="App">
         <h1>Project Budget Management System</h1>
-        <ProjectNavigation projects={projects} financialYears={financialYears} />
+        <Navbar projects={projects} financialYears={financialYears} />  {/* Use Navbar component */}
         <Routes>
           <Route path="/add-project" element={<AddProjectPage onProjectAdded={handleProjectAdded} />} />
           <Route path="/summary" element={<SummaryPage />} />
