@@ -1,18 +1,30 @@
 /* General navbar styling */
 .navbar {
-  background-color: #41747a;
-  padding: 1rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #2d3e50;
+  padding: 1rem 2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   position: sticky;
   top: 0;
   z-index: 1000;
+  display: flex;
+  justify-content: center; /* Center the navbar items */
+  align-items: center;
+}
+
+/* Logo styling */
+.navbar-logo {
+  font-size: 1.5rem;
+  color: #ecf0f1;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-right: auto; /* Align the logo to the left */
 }
 
 /* List styling */
 .navbar-list {
   list-style: none;
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
   margin: 0;
   padding: 0;
@@ -20,7 +32,7 @@
 
 /* List items styling */
 .navbar-item {
-  margin: 0 1rem;
+  margin: 0 1.5rem;
 }
 
 /* Link styling */
@@ -30,23 +42,25 @@
   font-weight: bold;
   font-size: 1.1rem;
   position: relative;
-  padding: 0.5rem 1rem;
-  transition: color 0.3s ease;
+  padding: 0.5rem 0;
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 
 /* Hover effect for links */
 .navbar-link:hover {
-  color: #3498db;
+  color: #1abc9c;
+  transform: scale(1.1);
 }
 
+/* Underline animation */
 .navbar-link::before {
   content: '';
   position: absolute;
   width: 100%;
   height: 2px;
-  bottom: 0;
+  bottom: -3px;
   left: 0;
-  background-color: #3498db;
+  background-color: #1abc9c;
   visibility: hidden;
   transform: scaleX(0);
   transition: all 0.3s ease-in-out;
@@ -66,21 +80,23 @@
   background-color: #ecf0f1;
   color: #2c3e50;
   transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .navbar-select:hover {
   background-color: #bdc3c7;
 }
 
-/* Dropdown animation */
+/* Dropdown option styling */
 .navbar-select option {
   background-color: #ecf0f1;
   color: #2c3e50;
 }
 
+/* Focus effect for select */
 .navbar-select:focus {
   outline: none;
-  box-shadow: 0 0 10px #3498db;
+  box-shadow: 0 0 10px #1abc9c;
 }
 
 /* Adding animation to the links */
@@ -114,4 +130,31 @@
 
 .navbar-item:nth-child(4) .navbar-select {
   animation-delay: 0.4s;
+}
+
+/* Responsive design for mobile */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .navbar-list {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .navbar-item {
+    margin: 0.5rem 0;
+  }
+
+  .navbar-link {
+    padding: 1rem;
+    width: 100%;
+    text-align: center;
+  }
+
+  .navbar-select {
+    width: 100%;
+  }
 }
