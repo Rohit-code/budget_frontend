@@ -63,7 +63,11 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
     };
 
     fetchProjectData();
-  }, [projectId]);
+
+    setNewBudget({});
+    setNewActual({});
+    setMonths(generateMonthsArray(projectStartDate, projectEndDate));
+  }, [projectId, projectStartDate, projectEndDate]);
 
   const handleBudgetChange = (month, category, value) => {
     setNewBudget(prev => ({
@@ -99,7 +103,6 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
   };
 
   const handleSave = async () => {
-    // Calculate total actual expenses
     let totalActualExpenses = 0;
 
     months.forEach(month => {
@@ -115,14 +118,14 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
       }
     }
 
-    // If validation passes, clear the error and proceed with saving
     setError('');
     const data = { newBudget, newActual };
 
     try {
       await axios.post(`http://localhost:5000/projects/${projectId}/expenses`, data);
       alert('Expenses saved successfully!');
-      // Optionally, you can update state or perform other actions after successful save
+      setExpenses(data);
+      setIsEditable(false);
     } catch (error) {
       console.error('Error saving expenses:', error);
       alert('Error saving expenses.');
@@ -201,7 +204,7 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
           ))}
         </tbody>
       </table>
-      <button onClick={handleSave}>Save</button>
+      <button onClick={handleSave} disabled={!isEditable}>Save</button>
       <button onClick={() => setIsEditable(!isEditable)}>{isEditable ? 'Done' : 'Edit'}</button>
     </div>
   );
