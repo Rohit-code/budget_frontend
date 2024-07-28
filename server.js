@@ -27,25 +27,25 @@ function formatDateFromDB(dateStr) {
 }
 
 // Endpoint to get completed projects within a date range
-app.get('/projects/completed', async (req, res) => {
-  const { start_date, end_date } = req.query;
-  try {
-    const result = await pool.query(
-      `SELECT * FROM projects 
-       WHERE end_date BETWEEN $1 AND $2`,
-      [start_date, end_date]
-    );
-    const projects = result.rows.map(project => ({
-      ...project,
-      start_date: formatDateFromDB(project.start_date),
-      end_date: formatDateFromDB(project.end_date)
-    }));
-    res.send(projects);
-  } catch (error) {
-    console.error('Error fetching completed projects:', error);
-    res.status(500).send({ error: 'Server error' });
-  }
-});
+// app.get('/projects/completed', async (req, res) => {
+//   const { start_date, end_date } = req.query;
+//   try {
+//     const result = await pool.query(
+//       `SELECT * FROM projects 
+//        WHERE end_date BETWEEN $1 AND $2`,
+//       [start_date, end_date]
+//     );
+//     const projects = result.rows.map(project => ({
+//       ...project,
+//       start_date: formatDateFromDB(project.start_date),
+//       end_date: formatDateFromDB(project.end_date)
+//     }));
+//     res.send(projects);
+//   } catch (error) {
+//     console.error('Error fetching completed projects:', error);
+//     res.status(500).send({ error: 'Server error' });
+//   }
+// });
 
 // Endpoint to create a new project
 app.post('/projects', async (req, res) => {

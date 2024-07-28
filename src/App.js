@@ -6,11 +6,12 @@ import AddProjectPage from './pages/AddProjectPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import SummaryPage from './pages/SummaryPage';
 import FinancialYearSummary from './pages/FinancialYearSummary';
-import Navbar from './components/Navbar';  // Import Navbar
+import Navbar from './components/Navbar';
 
 function App() {
   const [projects, setProjects] = useState([]);
   const [financialYears, setFinancialYears] = useState([]);
+  const [selectedYear, setSelectedYear] = useState(null);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -36,6 +37,21 @@ function App() {
     fetchFinancialYears();
   }, []);
 
+  useEffect(() => {
+    if (selectedYear) {
+      const fetchProjectsForYear = async () => {
+        try {
+          const response = await axios.get(`http://localhost:5000/projects?year=${selectedYear}`);
+          console.log('Fetched projects for year:', response.data);
+          setProjects(response.data);
+        } catch (error) {
+          console.error('Error fetching projects for the selected year:', error);
+        }
+      };
+      fetchProjectsForYear();
+    }
+  }, [selectedYear]);
+
   const handleProjectAdded = (newProject) => {
     setProjects(prevProjects => [...prevProjects, newProject]);
   };
@@ -49,11 +65,19 @@ function App() {
     }
   };
 
+  const handleYearChange = (year) => {
+    setSelectedYear(year);
+  };
+
   return (
     <Router>
       <div className="App">
         <h1>Project Budget Management System</h1>
-        <Navbar projects={projects} financialYears={financialYears} />  {/* Use Navbar component */}
+        <Navbar 
+          projects={projects} 
+          financialYears={financialYears} 
+          onYearChange={handleYearChange}  // Pass the handler to Navbar
+        />
         <Routes>
           <Route path="/add-project" element={<AddProjectPage onProjectAdded={handleProjectAdded} />} />
           <Route path="/summary" element={<SummaryPage />} />

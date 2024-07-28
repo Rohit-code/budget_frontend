@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Navbar.css';  // Import CSS for styling
 
-const Navbar = ({ projects, financialYears }) => {
+const Navbar = ({ projects, financialYears, onYearChange }) => {
   const navigate = useNavigate();
 
   return (
@@ -27,6 +27,7 @@ const Navbar = ({ projects, financialYears }) => {
           <select className="navbar-select" onChange={(e) => {
             const year = e.target.value;
             if (year) {
+              onYearChange(year);  // Call onYearChange when a financial year is selected
               navigate(`/financial-year-summary/${year}`);
             }
           }}>
