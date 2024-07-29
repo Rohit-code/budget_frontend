@@ -1,26 +1,31 @@
-/* General navbar styling */
+:root {
+  --primary-color: #2d3e50;
+  --secondary-color: #1abc9c;
+  --light-color: #ecf0f1;
+  --dark-color: #2c3e50;
+  --shadow-color: rgba(0, 0, 0, 0.15);
+}
+
 .navbar {
-  background-color: #2d3e50;
+  background-color: var(--primary-color);
   padding: 1rem 2rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 8px var(--shadow-color);
   position: sticky;
   top: 0;
   z-index: 1000;
   display: flex;
-  justify-content: center; /* Center the navbar items */
+  justify-content: center;
   align-items: center;
 }
 
-/* Logo styling */
 .navbar-logo {
   font-size: 1.5rem;
-  color: #ecf0f1;
+  color: var(--light-color);
   font-weight: bold;
   text-transform: uppercase;
-  margin-right: auto; /* Align the logo to the left */
+  margin-right: auto;
 }
 
-/* List styling */
 .navbar-list {
   list-style: none;
   display: flex;
@@ -30,14 +35,12 @@
   padding: 0;
 }
 
-/* List items styling */
 .navbar-item {
   margin: 0 1.5rem;
 }
 
-/* Link styling */
 .navbar-link {
-  color: #ecf0f1;
+  color: var(--light-color);
   text-decoration: none;
   font-weight: bold;
   font-size: 1.1rem;
@@ -46,13 +49,11 @@
   transition: color 0.3s ease, transform 0.3s ease;
 }
 
-/* Hover effect for links */
 .navbar-link:hover {
-  color: #1abc9c;
+  color: var(--secondary-color);
   transform: scale(1.1);
 }
 
-/* Underline animation */
 .navbar-link::before {
   content: '';
   position: absolute;
@@ -60,7 +61,7 @@
   height: 2px;
   bottom: -3px;
   left: 0;
-  background-color: #1abc9c;
+  background-color: var(--secondary-color);
   visibility: hidden;
   transform: scaleX(0);
   transition: all 0.3s ease-in-out;
@@ -71,35 +72,29 @@
   transform: scaleX(1);
 }
 
-/* Select styling */
 .navbar-select {
   padding: 0.5rem;
   border-radius: 5px;
   border: none;
   font-size: 1rem;
-  background-color: #ecf0f1;
-  color: #2c3e50;
+  background-color: var(--light-color);
+  color: var(--dark-color);
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
-.navbar-select:hover {
-  background-color: #bdc3c7;
-}
-
-/* Dropdown option styling */
-.navbar-select option {
-  background-color: #ecf0f1;
-  color: #2c3e50;
-}
-
-/* Focus effect for select */
+.navbar-select:hover,
 .navbar-select:focus {
+  background-color: #bdc3c7;
   outline: none;
-  box-shadow: 0 0 10px #1abc9c;
+  box-shadow: 0 0 10px var(--secondary-color);
 }
 
-/* Adding animation to the links */
+.navbar-select option {
+  background-color: var(--light-color);
+  color: var(--dark-color);
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -132,7 +127,6 @@
   animation-delay: 0.4s;
 }
 
-/* Responsive design for mobile */
 @media (max-width: 768px) {
   .navbar {
     flex-direction: column;
