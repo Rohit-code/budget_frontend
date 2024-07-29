@@ -30,7 +30,6 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
   const [newActual, setNewActual] = useState({});
   const [months, setMonths] = useState(generateMonthsArray(projectStartDate, projectEndDate));
   const [isEditable, setIsEditable] = useState(false);
-  const [error, setError] = useState('');
   const [projectBudget, setProjectBudget] = useState(0);
 
   useEffect(() => {
@@ -57,16 +56,19 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
         console.log('Parsed actual data:', actualData);
         setNewBudget(budgetData);
         setNewActual(actualData);
+        setExpenses(expensesResponse.data);
+        setMonths(generateMonthsArray(projectStartDate, projectEndDate));
       } catch (error) {
         console.error('Error fetching project data:', error);
       }
     };
 
+    // Fetch project data and expenses when projectId changes
     fetchProjectData();
 
+    // Reset state variables when projectId changes
     setNewBudget({});
     setNewActual({});
-    setMonths(generateMonthsArray(projectStartDate, projectEndDate));
   }, [projectId, projectStartDate, projectEndDate]);
 
   const handleBudgetChange = (month, category, value) => {
@@ -103,6 +105,7 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
   };
 
   const handleSave = async () => {
+    // Calculate total actual expenses
     let totalActualExpenses = 0;
 
     months.forEach(month => {
@@ -118,14 +121,13 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
       }
     }
 
-    setError('');
+    // If validation passes, clear the error and proceed with saving
     const data = { newBudget, newActual };
 
     try {
       await axios.post(`http://localhost:5000/projects/${projectId}/expenses`, data);
       alert('Expenses saved successfully!');
-      setExpenses(data);
-      setIsEditable(false);
+      // Optionally, you can update state or perform other actions after successful save
     } catch (error) {
       console.error('Error saving expenses:', error);
       alert('Error saving expenses.');
@@ -143,7 +145,6 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
   return (
     <div>
       <h2>Expenses for the Project</h2>
-      {error && <p className="error">{error}</p>}
       <table>
         <thead>
           <tr>
@@ -204,8 +205,9 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
           ))}
         </tbody>
       </table>
+      <button onClick={handleAddMonth} disabled={!isEditable}>Add Month</button>
       <button onClick={handleSave} disabled={!isEditable}>Save</button>
-      <button onClick={() => setIsEditable(!isEditable)}>{isEditable ? 'Done' : 'Edit'}</button>
+      <button onClick={() => setIsEditable(!isEditable)}>{isEditable ? 'Cancel' : 'Edit'}</button>
     </div>
   );
 };
