@@ -5,7 +5,7 @@ import '../styles/FinancialYearSummary.css';
 
 const FinancialYearSummary = () => {
   const { startYear } = useParams();
-  const [expenses, setExpenses] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -17,16 +17,16 @@ const FinancialYearSummary = () => {
   const fetchFinancialYearSummary = async (startYear) => {
     try {
       const response = await axios.get(`http://localhost:5000/projects/financial-year/${startYear}`);
-      const fetchedExpenses = response.data.map(expense => ({
-        ...expense,
-        budget_spent: parseFloat(expense.budget_spent),
-        carry_over_budget: parseFloat(expense.carry_over_budget),
+      const fetchedProjects = response.data.map(project => ({
+        ...project,
+        budget_spent: parseFloat(project.budget_spent),
+        carry_over_budget: parseFloat(project.carry_over_budget),
       }));
-      setExpenses(fetchedExpenses);
+      setProjects(fetchedProjects);
       setError(null);
     } catch (error) {
-      console.error('Error fetching expenses:', error);
-      setError('Error fetching expenses.');
+      console.error('Error fetching projects:', error);
+      setError('Error fetching projects.');
     }
   };
 
@@ -42,48 +42,49 @@ const FinancialYearSummary = () => {
     <div className="financial-year-summary">
       <h2>Financial Year Summary {startYear}</h2>
       {error && <p>{error}</p>}
-      {expenses.length === 0 ? (
-        <p>No expenses found for this financial year.</p>
+      {projects.length === 0 ? (
+        <p>No projects found for this financial year.</p>
       ) : (
-        <table className="expenses-table">
-          <thead>
-            <tr>
-              <th>Project Name</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Budget Spent</th>
-              <th>Carry Over Budget</th>
-              <th>Expenses</th>
-            </tr>
-          </thead>
-          <tbody>
-            {expenses.map(expense => (
-              <tr key={expense.id}>
-                <td>{expense.name}</td>
-                <td>{new Date(expense.start_date).toLocaleDateString()}</td>
-                <td>{new Date(expense.end_date).toLocaleDateString()}</td>
-                <td>Rs.{expense.budget_spent.toFixed(2)}</td>
-                <td>Rs.{expense.carry_over_budget.toFixed(2)}</td>
-                <td>
-                  <table className="inner-expenses-table">
-                    <tbody>
-                      {expense.expenses ? sortMonths(expense.expenses).map(([month, amount]) => (
-                        <tr key={month}>
-                          <td>{month}</td>
-                          <td>Rs.{amount.toFixed(2)}</td>
-                        </tr>
-                      )) : (
-                        <tr>
-                          <td colSpan="2">No expenses</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        projects.map(project => (
+          <div key={project.id} className="project-summary">
+            <h3>{project.name}</h3>
+            <table className="expenses-table">
+              <thead>
+                <tr>
+                  <th>Start Date</th>
+                  <th>End Date</th>
+                  <th>Budget Spent</th>
+                  <th>Carry Over Budget</th>
+                  <th>Expenses</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{new Date(project.start_date).toLocaleDateString()}</td>
+                  <td>{new Date(project.end_date).toLocaleDateString()}</td>
+                  <td>Rs.{project.budget_spent.toFixed(2)}</td>
+                  <td>Rs.{project.carry_over_budget.toFixed(2)}</td>
+                  <td>
+                    <table className="inner-expenses-table">
+                      <tbody>
+                        {project.expenses ? sortMonths(project.expenses).map(([month, amount]) => (
+                          <tr key={month}>
+                            <td>{month}</td>
+                            <td>Rs.{amount.toFixed(2)}</td>
+                          </tr>
+                        )) : (
+                          <tr>
+                            <td colSpan="2">No expenses</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        ))
       )}
     </div>
   );
