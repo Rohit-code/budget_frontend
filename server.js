@@ -49,11 +49,11 @@ function formatDateFromDB(dateStr) {
 
 // Endpoint to create a new project
 app.post('/projects', async (req, res) => {
-  const { name, start_date, end_date, budget } = req.body;
+  const { name, start_date, end_date, budget, order_value } = req.body;
   try {
     const result = await pool.query(
-      'INSERT INTO projects (name, start_date, end_date, budget) VALUES ($1, $2, $3, $4) RETURNING *',
-      [name, start_date, end_date, budget]
+      'INSERT INTO projects (name, start_date, end_date, order_value ,budget ) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [name, start_date, end_date, budget, order_value || null] // Set default if order_value is not provided
     );
     res.send(result.rows[0]);
   } catch (error) {
@@ -61,6 +61,7 @@ app.post('/projects', async (req, res) => {
     res.status(500).send({ error: 'Server error' });
   }
 });
+
 
 // Endpoint to get all projects
 app.get('/projects', async (req, res) => {
@@ -770,6 +771,28 @@ app.get('/projects/financial-year/:startYear', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
+
+// Helper function to generate month-year combinations between start and end dates
+// Function to generate an array of months between two dates
+function generateMonths(startDate, endDate) {
+  const months = [];
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  let current = start;
+  
+  while (current <= end) {
+    const year = current.getFullYear();
+    const month = String(current.getMonth() + 1).padStart(2, '0');
+    months.push(new Date(`${year}-${month}-01`));
+    current.setMonth(current.getMonth() + 1);
+  }
+
+  return months;
+}
+
+// API endpoint to get invoices
 app.get('/invoices', async (req, res) => {
   try {
     const results = await pool.query(`
@@ -791,19 +814,28 @@ app.get('/invoices', async (req, res) => {
 
     results.rows.forEach(row => {
       if (!projects[row.id]) {
+        const months = generateMonths(row.start_date, row.end_date);
         projects[row.id] = {
           name: row.name,
           start_date: row.start_date,
           end_date: row.end_date,
           order_value: row.order_value,
-          expenses: {}
+          expenses: months.reduce((acc, month) => {
+            const monthYear = month.toISOString().slice(0, 7);
+            acc[monthYear] = { budget: null, actual: null };
+            return acc;
+          }, {})
         };
       }
-      const monthYear = new Date(row.month).toLocaleString('default', { month: 'short', year: 'numeric' });
-      projects[row.id].expenses[monthYear] = {
-        budget: row.budget,
-        actual: row.actual
-      };
+      if (row.month) {
+        const monthYear = new Date(row.month).toISOString().slice(0, 7);
+        if (projects[row.id].expenses[monthYear]) {
+          projects[row.id].expenses[monthYear] = {
+            budget: row.budget,
+            actual: row.actual
+          };
+        }
+      }
     });
 
     res.json(projects);
@@ -812,6 +844,39 @@ app.get('/invoices', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
+
+// API endpoint to update invoices
+app.put('/invoices/:projectId/:month', async (req, res) => {
+  const { projectId, month } = req.params;
+  const { budget, actual } = req.body;
+
+  try {
+    const parsedMonth = new Date(month).toISOString().split('T')[0];
+
+    // Attempt to update the existing invoice
+    const result = await pool.query(`
+      UPDATE invoices
+      SET budget = $1, actual = $2
+      WHERE project_id = $3 AND month = $4
+    `, [budget, actual, projectId, parsedMonth]);
+
+    if (result.rowCount === 0) {
+      // If no rows were updated, insert the new invoice
+      await pool.query(`
+        INSERT INTO invoices (project_id, month, budget, actual)
+        VALUES ($1, $2, $3, $4)
+      `, [projectId, parsedMonth, budget, actual]);
+
+      return res.status(201).json({ message: 'Invoice created successfully' });
+    }
+
+    res.status(200).json({ message: 'Invoice updated successfully' });
+  } catch (err) {
+    console.error('Error updating or creating invoice:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 
 
 app.listen(port, () => {

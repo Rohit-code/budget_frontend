@@ -1,65 +1,80 @@
-/* Global Styles for Invoice Component */
-body {
-    font-family: 'Arial', sans-serif;
-    background: linear-gradient(120deg, #e1bee7, #d1c4e9);
-    margin: 0;
-    padding: 0;
-    color: #333;
+/* Styles for the table container */
+.invoice-table-container {
+    margin: 20px;
+    overflow-x: auto; /* Allows horizontal scrolling on smaller screens */
   }
   
-  /* Invoice Container */
-  .invoice-container {
-    margin: 40px auto;
-    padding: 30px;
-    width: 90%;
-    max-width: 1000px;
-    border-radius: 15px;
-    background: linear-gradient(135deg, #ff80ab 0%, #ffab91 100%);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    color: #333;
-    transition: all 0.3s ease-in-out;
-  }
-  
-  .invoice-container:hover {
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-  }
-  
-  /* Invoice Table Styles */
+  /* Styles for the table */
   table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 20px;
-    font-family: Arial, sans-serif;
-  }
-  
-  thead th {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px;
   }
   
   th, td {
     border: 1px solid #ddd;
     padding: 8px;
-    text-align: center;
+    text-align: left;
   }
   
-  tbody tr:nth-child(even) {
-    background-color: #f2f2f2;
+  th {
+    background-color: #f4f4f4;
   }
   
-  tbody tr:hover {
-    background-color: #ddd;
+  .total-budget {
+    text-align: right;
+    font-weight: bold;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-top: 2px solid #ddd;
   }
   
-  /* Responsive Design for Invoice Table */
+  /* Responsive design */
   @media (max-width: 768px) {
-    table {
-      font-size: 14px;
+    table, thead, tbody, th, td, tr {
+      display: block;
     }
   
-    thead th, tbody td {
-      padding: 6px;
+    thead tr {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+  
+    tr {
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+  
+    td {
+      border: none;
+      position: relative;
+      padding-left: 50%;
+      text-align: right;
+    }
+  
+    td::before {
+      content: attr(data-label);
+      position: absolute;
+      left: 0;
+      width: 45%;
+      padding-left: 10px;
+      white-space: nowrap;
+      font-weight: bold;
+    }
+  
+    /* Responsive styles for the total budget */
+    .total-budget {
+      font-size: 14px;
+      padding: 5px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .total-budget {
+      font-size: 12px;
+      padding: 3px;
     }
   }
   
