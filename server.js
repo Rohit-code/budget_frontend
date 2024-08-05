@@ -770,6 +770,49 @@ app.get('/projects/financial-year/:startYear', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+app.get('/invoices', async (req, res) => {
+  try {
+    const results = await pool.query(`
+      SELECT 
+        p.id,
+        p.name,
+        p.start_date,
+        p.end_date,
+        p.order_value,
+        i.month,
+        i.budget,
+        i.actual
+      FROM projects p
+      LEFT JOIN invoices i ON p.id = i.project_id
+      ORDER BY p.id, i.month;
+    `);
+
+    const projects = {};
+
+    results.rows.forEach(row => {
+      if (!projects[row.id]) {
+        projects[row.id] = {
+          name: row.name,
+          start_date: row.start_date,
+          end_date: row.end_date,
+          order_value: row.order_value,
+          expenses: {}
+        };
+      }
+      const monthYear = new Date(row.month).toLocaleString('default', { month: 'short', year: 'numeric' });
+      projects[row.id].expenses[monthYear] = {
+        budget: row.budget,
+        actual: row.actual
+      };
+    });
+
+    res.json(projects);
+  } catch (err) {
+    console.error('Error fetching invoices:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

@@ -2,91 +2,87 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../styles/Invoice.css';
 
-const generateMonthsArray = (start, end) => {
-  const months = [];
-  const startDate = new Date(start);
-  const endDate = new Date(end);
-  
-  let currentDate = startDate;
-  
-  while (currentDate <= endDate) {
-    const monthYear = currentDate.toLocaleString('default', { month: 'short', year: 'numeric' });
-    months.push(monthYear);
-    currentDate.setMonth(currentDate.getMonth() + 1);
-  }
-
-  return months;
-};
-
 const Invoice = () => {
-  const [projects, setProjects] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [projects, setProjects] = useState({});
 
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchInvoices = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/projects');
+        const response = await axios.get('http://localhost:5000/invoices');
         setProjects(response.data);
-        setIsLoading(false);
       } catch (error) {
-        console.error('Error fetching projects:', error);
-        setIsLoading(false);
+        console.error('Error fetching invoices:', error);
       }
     };
 
-    fetchProjects();
+    fetchInvoices();
   }, []);
 
-  if (isLoading) {
-    return <p>Loading projects...</p>;
-  }
+  const generateMonthsArray = (start, end) => {
+    const months = [];
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    
+    let currentDate = startDate;
+    
+    while (currentDate <= endDate) {
+      const monthYear = currentDate.toLocaleString('default', { month: 'short', year: 'numeric' });
+      months.push(monthYear);
+      currentDate.setMonth(currentDate.getMonth() + 1);
+    }
 
-  if (!projects.length) {
-    return <p>No projects available.</p>;
-  }
-
-  const allMonths = projects.reduce((acc, project) => {
-    const projectMonths = generateMonthsArray(project.start_date, project.end_date);
-    return [...new Set([...acc, ...projectMonths])];
-  }, []).sort();
+    return months;
+  };
 
   return (
     <div>
-      <h2>Projects Invoice</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Project Name</th>
-            {allMonths.map(month => (
-              <th key={month} colSpan="2">{month}</th>
-            ))}
-          </tr>
-          <tr>
-            {allMonths.map(month => (
-              <React.Fragment key={month}>
-                <th>Budget</th>
-                <th>Actual</th>
-              </React.Fragment>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {projects.map(project => (
-            <tr key={project.id}>
-              <td>{project.name}</td>
-              {allMonths.map(month => {
-                const expense = project.expenses.find(e => e.month === month) || {};
-                return (
-                  <React.Fragment key={month}>
-                    <td>{expense.budget || '-'}</td>
-                    <td>{expense.actual || '-'}</td>
-                  </React.Fragment>
-                );
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <h2>Invoices</h2>
+      {Object.keys(projects).map(projectId => {
+        const project = projects[projectId];
+        const months = generateMonthsArray(project.start_date, project.end_date);
+
+        return (
+          <div key={projectId} className="invoice-table-container">
+            <h3>{project.name}</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Start Date</th>
+                  <th>End Date</th>
+                  <th>Order Value</th>
+                  {months.map(month => (
+                    <th key={month} colSpan="2">{month}</th>
+                  ))}
+                </tr>
+                <tr>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  {months.map(month => (
+                    <React.Fragment key={month}>
+                      <th>Budget</th>
+                      <th>Actual</th>
+                    </React.Fragment>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{project.start_date}</td>
+                  <td>{project.end_date}</td>
+                  <td>{project.order_value}</td>
+                  {months.map(month => (
+                    <React.Fragment key={month}>
+                      <td>{project.expenses[month]?.budget || '-'}</td>
+                      <td>{project.expenses[month]?.actual || '-'}</td>
+                    </React.Fragment>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        );
+      })}
     </div>
   );
 };

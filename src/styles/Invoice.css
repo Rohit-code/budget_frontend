@@ -1,0 +1,65 @@
+/* Global Styles for Invoice Component */
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(120deg, #e1bee7, #d1c4e9);
+    margin: 0;
+    padding: 0;
+    color: #333;
+  }
+  
+  /* Invoice Container */
+  .invoice-container {
+    margin: 40px auto;
+    padding: 30px;
+    width: 90%;
+    max-width: 1000px;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #ff80ab 0%, #ffab91 100%);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    color: #333;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .invoice-container:hover {
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Invoice Table Styles */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  thead th {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+  }
+  
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+  }
+  
+  tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  tbody tr:hover {
+    background-color: #ddd;
+  }
+  
+  /* Responsive Design for Invoice Table */
+  @media (max-width: 768px) {
+    table {
+      font-size: 14px;
+    }
+  
+    thead th, tbody td {
+      padding: 6px;
+    }
+  }
+  
