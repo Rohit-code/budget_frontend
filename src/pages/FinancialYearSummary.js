@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/FinancialYearSummary.css';
 
-const FinancialYearSummary = ({ selectedYear }) => {
+const FinancialYearSummary = () => {
   const { year } = useParams();  // Use useParams to get the route parameter
   const [projects, setProjects] = useState([]);
   const [error, setError] = useState(null);
@@ -25,10 +25,10 @@ const FinancialYearSummary = ({ selectedYear }) => {
       }
     };
 
-    if (selectedYear) {
-      fetchFinancialYearSummary(selectedYear);  // Fetch projects for the selected year
+    if (year) {  // Use the year from the URL parameters
+      fetchFinancialYearSummary(year);  // Fetch projects for the selected year
     }
-  }, [selectedYear]);
+  }, [year]);
 
   const sortMonths = (expenses) => {
     return Object.entries(expenses).sort(([monthA], [monthB]) => {
@@ -40,7 +40,7 @@ const FinancialYearSummary = ({ selectedYear }) => {
 
   return (
     <div className="financial-year-summary">
-      <h2>Financial Year Summary {selectedYear}</h2>
+      <h2>Financial Year Summary of {year}</h2>  {/* Use the year from useParams */}
       {error && <p>{error}</p>}
       {projects.length === 0 ? (
         <p>No projects found for this financial year.</p>
