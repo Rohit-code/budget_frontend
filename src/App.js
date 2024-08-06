@@ -6,6 +6,7 @@ import AddProjectPage from './pages/AddProjectPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import SummaryPage from './pages/SummaryPage';
 import FinancialYearSummary from './pages/FinancialYearSummary';
+// import InvoicePage from './pages/InvoicePage';
 import Navbar from './components/Navbar';
 
 function App() {
@@ -44,6 +45,7 @@ function App() {
           const response = await axios.get(`http://localhost:5000/projects?year=${selectedYear}`);
           console.log('Fetched projects for year:', response.data);
           setProjects(response.data);
+          setSelectedYear(null); // Reset the dropdown to "Select financial year"
         } catch (error) {
           console.error('Error fetching projects for the selected year:', error);
         }
@@ -76,13 +78,15 @@ function App() {
         <Navbar 
           projects={projects} 
           financialYears={financialYears} 
+          selectedYear={selectedYear}  // Pass selectedYear to control the dropdown
           onYearChange={handleYearChange}  // Pass the handler to Navbar
         />
         <Routes>
           <Route path="/add-project" element={<AddProjectPage onProjectAdded={handleProjectAdded} />} />
           <Route path="/summary" element={<SummaryPage />} />
           <Route path="/project/:projectId" element={<ProjectDetailPage onDeleteProject={handleDeleteProject} />} />
-          <Route path="/financial-year-summary/:startYear" element={<FinancialYearSummary />} />
+          <Route path="/financial-year-summary/:year" element={<FinancialYearSummary selectedYear={selectedYear} />} />  {/* Pass selectedYear if needed */}
+          {/* <Route path="/invoices" element={<InvoicePage />} />  Route for invoices */}
         </Routes>
       </div>
     </Router>
