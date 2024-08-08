@@ -6,7 +6,6 @@ import AddProjectPage from './pages/AddProjectPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import SummaryPage from './pages/SummaryPage';
 import FinancialYearSummary from './pages/FinancialYearSummary';
-import InvoicePage from './pages/InvoicePage';
 import Navbar from './components/Navbar';
 
 function App() {
@@ -85,7 +84,6 @@ function App() {
           <Route path="/summary" element={<SummaryPage />} />
           <Route path="/project/:projectId" element={<ProjectDetailPage onDeleteProject={handleDeleteProject} />} />
           <Route path="/financial-year-summary/:year" element={<FinancialYearSummary selectedYear={selectedYear} />} /> 
-          <Route path="/invoices" element={<InvoicePage />} />
         </Routes>
       </div>
     </Router>

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import '../styles/DynamicTable.css';
 import InvoiceTable from './InvoiceTable';
 
 const categories = [
@@ -33,6 +32,7 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
   const [isEditable, setIsEditable] = useState(false);
   const [projectBudget, setProjectBudget] = useState(0);
   const [invoiceBudget, setInvoiceBudget] = useState({});
+  const [invoiceActual, setInvoiceActual] = useState({});
 
   useEffect(() => {
     const fetchProjectData = async () => {
@@ -71,12 +71,17 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
     setNewActual({});
   }, [projectId, projectStartDate, projectEndDate]);
 
-  const handleInvoiceBudgetChange = (month, value) => {
-    setInvoiceBudget(prev => ({
-      ...prev,
-      [month]: parseFloat(value) || 0
-    }));
-  };
+  useEffect(() => {
+    const calculateInvoiceActual = () => {
+      const actuals = {};
+      months.forEach(month => {
+        actuals[month] = calculateCashOutflow(month, 'actual');
+      });
+      setInvoiceActual(actuals);
+    };
+
+    calculateInvoiceActual();
+  }, [newActual, months]);
 
   const handleBudgetChange = (month, category, value) => {
     setNewBudget(prev => ({
@@ -120,6 +125,10 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
     }
   };
 
+  const handleInvoiceBudgetSave = (newInvoiceBudget) => {
+    setInvoiceBudget(newInvoiceBudget);
+  };
+
   const calculateCashOutflow = (month, type) => {
     const expensesForMonth = type === 'budget' ? newBudget : newActual;
     return categories.reduce((sum, category) => {
@@ -133,38 +142,12 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
       <h2>Expenses for the Project</h2>
       <InvoiceTable 
         projectId={projectId} 
-        invoiceBudget={invoiceBudget} 
-        onUpdateBudget={setInvoiceBudget} 
-        isEditable={isEditable}
+        projectStartDate={projectStartDate}
+        projectEndDate={projectEndDate}
+        initialInvoiceBudget={invoiceBudget} 
+        invoiceActual={invoiceActual} 
+        onInvoiceBudgetSave={handleInvoiceBudgetSave} 
       />
-      <table>
-        <thead>
-          <tr>
-            <th>Month</th>
-            <th>Invoice Budget</th>
-            <th>Invoice Actual</th>
-          </tr>
-        </thead>
-        <tbody>
-          {months.map(month => (
-            <tr key={month}>
-              <td>{month}</td>
-              <td>
-                {isEditable ? (
-                  <input
-                    type="number"
-                    value={invoiceBudget[month] || 0}
-                    onChange={e => handleInvoiceBudgetChange(month, e.target.value)}
-                  />
-                ) : (
-                  <span>{invoiceBudget[month] || 0}</span>
-                )}
-              </td>
-              <td>{calculateCashOutflow(month, 'actual')}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
       <h2>Detailed Expenses</h2>
       <table>
         <thead>

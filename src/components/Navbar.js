@@ -43,7 +43,7 @@ const Navbar = ({ projects, financialYears, onYearChange }) => {
             ))}
           </select>
         </li>
-        <li className="navbar-item"><Link to="/invoices" className="navbar-link">Invoices</Link></li>
+        
       </ul>
     </nav>
   );
