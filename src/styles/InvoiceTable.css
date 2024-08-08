@@ -1,106 +1,143 @@
 /* InvoiceTable.css */
 
 .invoice-table-container {
-    width: 80%;
-    margin: 40px auto;
-    padding: 30px;
-    background-color: #ffffff;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease-in-out;
+  width: 80%;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
+}
+
+.invoice-table-container:hover {
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.invoice-table-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.invoice-table-header h2 {
+  font-size: 1.8em;
+  font-weight: 600;
+  color: #ff7043;
+}
+
+.invoice-table-header p {
+  font-size: 1.2em;
+  color: #2c3e50;
+  margin: 10px 0;
+}
+
+.remaining-budget {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #ffebee;
+  border-radius: 5px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-size: 1.2em;
+  color: #c62828;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-size: 1rem;
+  border-radius: 10px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+thead th {
+  background-color: #ff7043;
+  color: white;
+}
+
+th, td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #fff3e0;
+}
+
+tbody tr:hover {
+  background-color: #ffe0b2;
+}
+
+input[type="number"] {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  color: white;
+  background-color: #ff7043;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #e64a19;
+}
+
+.invoice-table-buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.print-button {
+  background-color: #4caf50;
+}
+
+.print-button:hover {
+  background-color: #388e3c;
+}
+
+/* Print styles */
+@media print {
+  .invoice-table-container {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
   }
-  
-  .invoice-table-header {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
+
   .invoice-table-header h2 {
-    font-size: 1.8em;
-    font-weight: 600;
-    color: #ff7043;
+    font-size: 1.5em;
   }
-  
+
   .invoice-table-header p {
-    font-size: 1.2em;
-    color: #2c3e50;
-    margin: 10px 0;
+    font-size: 1em;
   }
-  
+
   .remaining-budget {
-    margin-top: 15px;
-    padding: 10px;
-    background-color: #ffebee;
-    border-radius: 5px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    font-size: 1.2em;
-    color: #c62828;
+    font-size: 1em;
   }
-  
+
   table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    font-size: 1rem;
-    border-radius: 10px;
-    background-color: #ffffff;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  thead th {
-    background-color: #ff7043;
-    color: white;
-  }
-  
-  th, td {
-    padding: 12px;
     border: 1px solid #ddd;
-    text-align: center;
   }
-  
-  tbody tr:nth-child(even) {
-    background-color: #fff3e0;
-  }
-  
-  tbody tr:hover {
-    background-color: #ffe0b2;
-  }
-  
-  input[type="number"] {
-    width: 100%;
+
+  th, td {
     padding: 8px;
     border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1rem;
   }
-  
+
   button {
-    padding: 10px 20px;
-    font-size: 1rem;
-    color: white;
-    background-color: #ff7043;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    display: none; /* Hide buttons during printing */
   }
-  
-  button:hover {
-    background-color: #e64a19;
-  }
-  
-  .invoice-table-buttons {
-    margin-top: 20px;
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .print-button {
-    background-color: #4caf50;
-  }
-  
-  .print-button:hover {
-    background-color: #388e3c;
-  }
-  
-  
+}
