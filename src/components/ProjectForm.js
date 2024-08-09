@@ -59,11 +59,11 @@ function ProjectForm({ onProjectAdded }) {
         <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
       </div>
       <div>
-        <label>Order Value:</label>
+        <label>Budget:</label>
         <input type="number" value={orderValue} onChange={(e) => setOrderValue(e.target.value)} />
       </div>
       <div>
-        <label>Budget:</label>
+        <label>Order Value:</label>
         <input type="number" value={budget} onChange={(e) => setBudget(e.target.value)} />
       </div>
       {error && <div className="error-message">{error}</div>} {/* Display error message */}
