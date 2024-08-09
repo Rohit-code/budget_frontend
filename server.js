@@ -497,16 +497,16 @@ app.post('/projects/:projectId/invoices', async (req, res) => {
     );
 
     if (existingInvoice.rows.length > 0) {
-      // Update existing invoice
+      // Update only the invoice_budget and invoice_actual columns
       await pool.query(
-        'UPDATE invoices SET invoice_budget = $1, invoice_actual = $2, order_value = $3, months = $4 WHERE project_id = $5 AND start_date = $6 AND end_date = $7',
-        [JSON.stringify(invoiceBudget), JSON.stringify(invoiceActual), order_value, months, projectId, start_date, end_date]
+        'UPDATE invoices SET invoice_budget = $1, invoice_actual = $2 WHERE project_id = $3 AND start_date = $4 AND end_date = $5',
+        [JSON.stringify(invoiceBudget), JSON.stringify(invoiceActual), projectId, start_date, end_date]
       );
     } else {
-      // Insert new invoice
+      // Insert a new invoice with only invoice_budget and invoice_actual
       await pool.query(
-        'INSERT INTO invoices (project_id, start_date, end_date, months, invoice_budget, invoice_actual, order_value) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-        [projectId, start_date, end_date, months, JSON.stringify(invoiceBudget), JSON.stringify(invoiceActual), order_value]
+        'INSERT INTO invoices (project_id, start_date, end_date, invoice_budget, invoice_actual) VALUES ($1, $2, $3, $4, $5)',
+        [projectId, start_date, end_date, JSON.stringify(invoiceBudget), JSON.stringify(invoiceActual)]
       );
     }
 
@@ -516,6 +516,7 @@ app.post('/projects/:projectId/invoices', async (req, res) => {
     res.status(500).json({ error: 'Error saving invoice' });
   }
 });
+
 
 app.get('/projects/:projectId/invoices', async (req, res) => {
   const { projectId } = req.params;
