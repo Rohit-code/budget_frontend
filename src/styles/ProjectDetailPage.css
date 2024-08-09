@@ -90,6 +90,7 @@ body {
   margin: 20px 0;
   border-radius: 8px;
   overflow: hidden;
+  table-layout: auto; /* Ensures the table adjusts to its content */
 }
 
 .project-detail-table thead {
@@ -101,6 +102,9 @@ body {
   padding: 14px;
   border: 1px solid #ddd;
   text-align: left;
+  white-space: nowrap; /* Prevents text wrapping */
+  text-overflow: ellipsis; /* Adds ellipsis to overflow text */
+  overflow: hidden; /* Hides overflow text */
 }
 
 .project-detail-table th {
