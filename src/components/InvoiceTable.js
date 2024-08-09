@@ -33,8 +33,8 @@ const InvoiceTable = ({ projectId, projectStartDate, projectEndDate, onInvoiceBu
       try {
         const projectResponse = await axios.get(`http://localhost:5000/projects/${projectId}`);
         const projectData = projectResponse.data;
-        setInitialOrderValue(parseFloat(projectData.order_value) || 0);
-        const initialBudget = parseFloat(projectData.budget) || 0;
+        setInitialOrderValue(parseFloat(projectData.budget) || 0);
+        const initialBudget = parseFloat(projectData.order_value) || 0;
         setTotalBudget(initialBudget);
 
         // Fetch invoice data
