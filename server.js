@@ -433,111 +433,125 @@ app.get('/projects/financial-year/:startYear', async (req, res) => {
   }
 });
 
+const calculateStartEndDates = (invoiceBudget) => {
+  const months = Object.keys(invoiceBudget);
+  const startDate = new Date(`${months[0]}-01`);
+  const endDate = new Date(`${months[months.length - 1]}-01`);
+  endDate.setMonth(endDate.getMonth() + 1); // Move to the first day of the next month
+  endDate.setDate(0); // Move to the last day of the current month
 
-// Helper function to generate month-year combinations between start and end dates
-// Function to generate an array of months between two dates
-function generateMonths(startDate, endDate) {
-  const months = [];
-  const start = new Date(startDate);
-  const end = new Date(endDate);
+  return {
+    start_date: startDate.toISOString().substring(0, 10),
+    end_date: endDate.toISOString().substring(0, 10)
+  };
+};
 
-  let current = start;
-  
-  while (current <= end) {
-    const year = current.getFullYear();
-    const month = String(current.getMonth() + 1).padStart(2, '0');
-    months.push(new Date(`${year}-${month}-01`));
-    current.setMonth(current.getMonth() + 1);
-  }
+app.post('/projects/:projectId/invoices', async (req, res) => {
+  const { projectId } = req.params;
+  const { invoiceBudget, invoiceActual } = req.body;
 
-  return months;
-}
+  console.log('Raw request body:', req.body);
 
-// API endpoint to get invoices
-app.get('/invoices', async (req, res) => {
+  const { start_date, end_date } = calculateStartEndDates(invoiceBudget);
+
   try {
-    const results = await pool.query(`
-      SELECT 
-        p.id,
-        p.name,
-        p.start_date,
-        p.end_date,
-        p.order_value,
-        i.month,
-        i.budget,
-        i.actual
-      FROM projects p
-      LEFT JOIN invoices i ON p.id = i.project_id
-      ORDER BY p.id, i.month;
-    `);
+    // Retrieve order value from projects table
+    const projectResult = await pool.query('SELECT order_value FROM projects WHERE id = $1', [projectId]);
+    if (projectResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+    const order_value = projectResult.rows[0].order_value;
 
-    const projects = {};
+    // Calculate invoice actual dynamically if not provided
+    const invoice_actual_sum = Object.values(invoiceActual || {}).reduce((sum, value) => sum + value, 0);
 
-    results.rows.forEach(row => {
-      if (!projects[row.id]) {
-        const months = generateMonths(row.start_date, row.end_date);
-        projects[row.id] = {
-          name: row.name,
-          start_date: row.start_date,
-          end_date: row.end_date,
-          order_value: row.order_value,
-          expenses: months.reduce((acc, month) => {
-            const monthYear = month.toISOString().slice(0, 7);
-            acc[monthYear] = { budget: null, actual: null };
-            return acc;
-          }, {})
-        };
-      }
-      if (row.month) {
-        const monthYear = new Date(row.month).toISOString().slice(0, 7);
-        if (projects[row.id].expenses[monthYear]) {
-          projects[row.id].expenses[monthYear] = {
-            budget: row.budget,
-            actual: row.actual
-          };
-        }
-      }
+    console.log('Received data:', {
+      projectId,
+      start_date,
+      end_date,
+      invoice_budget: JSON.stringify(invoiceBudget),  // Convert to JSON string
+      invoice_actual: JSON.stringify(invoiceActual),  // Convert to JSON string
+      invoice_actual_sum,
+      order_value
     });
 
-    res.json(projects);
-  } catch (err) {
-    console.error('Error fetching invoices:', err);
-    res.status(500).json({ message: 'Server error', error: err.message });
-  }
-});
+    // Extract months from invoiceBudget keys
+    const months = Object.keys(invoiceBudget);
 
-// API endpoint to update invoices
-app.put('/invoices/:projectId/:month', async (req, res) => {
-  const { projectId, month } = req.params;
-  const { budget, actual } = req.body;
-
-  try {
-    const parsedMonth = new Date(month).toISOString().split('T')[0];
-
-    // Attempt to update the existing invoice
-    const result = await pool.query(`
-      UPDATE invoices
-      SET budget = $1, actual = $2
-      WHERE project_id = $3 AND month = $4
-    `, [budget, actual, projectId, parsedMonth]);
-
-    if (result.rowCount === 0) {
-      // If no rows were updated, insert the new invoice
-      await pool.query(`
-        INSERT INTO invoices (project_id, month, budget, actual)
-        VALUES ($1, $2, $3, $4)
-      `, [projectId, parsedMonth, budget, actual]);
-
-      return res.status(201).json({ message: 'Invoice created successfully' });
+    // Validate required fields
+    if (!start_date || !end_date || invoiceBudget === undefined || invoice_actual_sum === undefined || order_value === undefined) {
+      console.error('Missing required fields:', {
+        start_date,
+        end_date,
+        invoiceBudget,
+        invoice_actual_sum,
+        order_value
+      });
+      return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    res.status(200).json({ message: 'Invoice updated successfully' });
-  } catch (err) {
-    console.error('Error updating or creating invoice:', err);
-    res.status(500).json({ message: 'Server error', error: err.message });
+    // Check if invoice already exists
+    const existingInvoice = await pool.query(
+      'SELECT * FROM invoices WHERE project_id = $1 AND start_date = $2 AND end_date = $3',
+      [projectId, start_date, end_date]
+    );
+
+    if (existingInvoice.rows.length > 0) {
+      // Update existing invoice
+      await pool.query(
+        'UPDATE invoices SET invoice_budget = $1, invoice_actual = $2, order_value = $3, months = $4 WHERE project_id = $5 AND start_date = $6 AND end_date = $7',
+        [JSON.stringify(invoiceBudget), JSON.stringify(invoiceActual), order_value, months, projectId, start_date, end_date]
+      );
+    } else {
+      // Insert new invoice
+      await pool.query(
+        'INSERT INTO invoices (project_id, start_date, end_date, months, invoice_budget, invoice_actual, order_value) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+        [projectId, start_date, end_date, months, JSON.stringify(invoiceBudget), JSON.stringify(invoiceActual), order_value]
+      );
+    }
+
+    res.status(200).json({ message: 'Invoice saved successfully!' });
+  } catch (error) {
+    console.error('Error saving invoice:', error.message);
+    res.status(500).json({ error: 'Error saving invoice' });
   }
 });
 
+app.get('/projects/:projectId/invoices', async (req, res) => {
+  const { projectId } = req.params;
+  console.log("Received projectId:", projectId);
+
+  if (!projectId) {
+    return res.status(400).json({ error: 'Project ID is required' });
+  }
+
+  try {
+    const result = await pool.query(
+      'SELECT * FROM invoices WHERE project_id = $1',
+      [projectId]
+    );
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error fetching invoices:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/invoices', async (req, res) => {
+  const { projectId } = req.params;
+
+  try {
+    const result = await pool.query('SELECT * FROM invoices');
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'No invoices found for the given project ID' });
+    }
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error fetching invoices:', error.message);
+    res.status(500).json({ error: 'Error fetching invoices' });
+  }
+});
 
 
 app.listen(port, () => {

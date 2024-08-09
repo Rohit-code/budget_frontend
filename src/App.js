@@ -1,3 +1,4 @@
+// App.js
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import axios from 'axios';
@@ -6,13 +7,14 @@ import AddProjectPage from './pages/AddProjectPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import SummaryPage from './pages/SummaryPage';
 import FinancialYearSummary from './pages/FinancialYearSummary';
-// import InvoicePage from './pages/InvoicePage';
+import InvoicePage from './pages/InvoicePage';
 import Navbar from './components/Navbar';
 
 function App() {
   const [projects, setProjects] = useState([]);
   const [financialYears, setFinancialYears] = useState([]);
   const [selectedYear, setSelectedYear] = useState(null);
+  const [selectedInvoiceProject, setSelectedInvoiceProject] = useState(null);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -45,7 +47,6 @@ function App() {
           const response = await axios.get(`http://localhost:5000/projects?year=${selectedYear}`);
           console.log('Fetched projects for year:', response.data);
           setProjects(response.data);
-          setSelectedYear(null); // Reset the dropdown to "Select financial year"
         } catch (error) {
           console.error('Error fetching projects for the selected year:', error);
         }
@@ -71,6 +72,10 @@ function App() {
     setSelectedYear(year);
   };
 
+  const handleInvoiceProjectChange = (projectId) => {
+    setSelectedInvoiceProject(projectId);
+  };
+
   return (
     <Router>
       <div className="App">
@@ -78,15 +83,16 @@ function App() {
         <Navbar 
           projects={projects} 
           financialYears={financialYears} 
-          selectedYear={selectedYear}  // Pass selectedYear to control the dropdown
-          onYearChange={handleYearChange}  // Pass the handler to Navbar
+          selectedYear={selectedYear} 
+          onYearChange={handleYearChange} 
+          onInvoiceProjectChange={handleInvoiceProjectChange} 
         />
         <Routes>
           <Route path="/add-project" element={<AddProjectPage onProjectAdded={handleProjectAdded} />} />
           <Route path="/summary" element={<SummaryPage />} />
           <Route path="/project/:projectId" element={<ProjectDetailPage onDeleteProject={handleDeleteProject} />} />
-          <Route path="/financial-year-summary/:year" element={<FinancialYearSummary selectedYear={selectedYear} />} />  {/* Pass selectedYear if needed */}
-          {/* <Route path="/invoices" element={<InvoicePage />} />  Route for invoices */}
+          <Route path="/financial-year-summary/:year" element={<FinancialYearSummary selectedYear={selectedYear} />} />
+          <Route path="/invoice/:projectId" element={<InvoicePage projectId={selectedInvoiceProject} />} /> 
         </Routes>
       </div>
     </Router>
