@@ -1,46 +1,51 @@
-// src/pages/InvoicePage.js
+// InvoicePage.js
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import InvoiceTable from '../components/InvoiceTable';
 
-const InvoicePage = () => {
-  const [projects, setProjects] = useState([]);
-  const [budgets, setBudgets] = useState({});
+const InvoicePage = ({ projectId }) => {
+  const { projectId: urlProjectId } = useParams();
+  const [project, setProject] = useState(null);
+  const [invoices, setInvoices] = useState([]);
 
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchProject = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/projects');
-        setProjects(response.data);
+        const response = await axios.get(`http://localhost:5000/projects/${projectId || urlProjectId}`);
+        setProject(response.data);
       } catch (error) {
-        console.error('Error fetching projects:', error);
+        console.error('Error fetching project:', error);
       }
     };
-    fetchProjects();
-  }, []);
 
-  const handleUpdateBudget = (projectId, monthlyBudgets) => {
-    setBudgets((prevBudgets) => ({
-      ...prevBudgets,
-      [projectId]: monthlyBudgets,
-    }));
-  };
+    const fetchInvoices = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/invoices?projectId=${projectId || urlProjectId}`);
+        setInvoices(response.data);
+      } catch (error) {
+        console.error('Error fetching invoices:', error);
+      }
+    };
+
+    fetchProject();
+    fetchInvoices();
+  }, [projectId, urlProjectId]);
+
+  if (!project) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>
-      <h1>Projects and Invoices</h1>
-      {projects.map((project) => (
-        <div key={project.id}>
-          <h2>{project.name}</h2>
-          <p>Start Date: {project.startDate}</p>
-          <p>End Date: {project.endDate}</p>
-          <p>Order Value: {project.orderValue}</p>
-          <InvoiceTable 
-            projectId={project.id}
-            onUpdateBudget={(monthlyBudgets) => handleUpdateBudget(project.id, monthlyBudgets)}
-          />
-        </div>
-      ))}
+      <h1>{project.name} - Invoices</h1>
+      <InvoiceTable 
+        projectId={project.id} 
+        projectStartDate={project.start_date} 
+        projectEndDate={project.end_date} 
+        invoiceActual={invoices.reduce((acc, invoice) => ({ ...acc, [invoice.month]: invoice.amount }), {})}
+        onInvoiceBudgetSave={() => {}}
+      />
     </div>
   );
 };

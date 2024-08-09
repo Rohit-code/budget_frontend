@@ -1,10 +1,9 @@
-/* FinancialYearSummary.css */
 body {
   font-family: 'Arial', sans-serif;
-  background: linear-gradient(to right, #e0f7fa, #80deea);
+  background: linear-gradient(to right, #f0f4c3, #a5d6a7); /* Soft green and light yellow gradient */
   margin: 0;
   padding: 0;
-  color: #333;
+  color: #2c3e50; /* Deep blue-gray for text */
 }
 
 .financial-year-summary {
@@ -14,29 +13,30 @@ body {
   border-radius: 20px;
   background: #ffffff;
   max-width: 85%;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
 }
 
 .financial-year-summary:hover {
-  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
   transform: translateY(-8px);
 }
 
 .financial-year-summary h2 {
   text-align: center;
-  color: #004d40;
+  color: #2e7d32; /* Dark green */
   margin-bottom: 20px;
-  font-size: 2em;
+  font-size: 2.2em;
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for text */
 }
 
 .financial-year-summary p {
-  color: #555;
-  font-size: 1.1rem;
-  line-height: 1.7;
+  color: #4f4f4f; /* Dark gray for readability */
+  font-size: 1.2rem;
+  line-height: 1.8;
 }
 
 .expenses-table {
@@ -46,29 +46,33 @@ body {
   font-size: 1rem;
   border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
 .expenses-table thead {
-  background: linear-gradient(to right, #00796b, #004d40);
+  background: linear-gradient(to right, #66bb6a, #43a047); /* Vibrant green gradient */
   color: white;
 }
 
 .expenses-table th, .expenses-table td {
-  padding: 14px;
+  padding: 16px;
   border: 1px solid #ddd;
   text-align: left;
+  font-size: 1.1rem;
 }
 
 .expenses-table th {
-  font-weight: 600;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(to right, #26a69a, #00796b); /* Vibrant teal gradient */
 }
 
 .expenses-table tr:nth-child(even) {
-  background-color: #e0f2f1;
+  background-color: #e8f5e9; /* Light green for even rows */
 }
 
 .expenses-table tr:hover {
-  background-color: #c8e6c9; /* Old hover color */
+  background-color: #b9f6ca; /* Bright light green on hover */
   transition: background-color 0.3s ease;
 }
 
@@ -78,16 +82,17 @@ body {
 }
 
 .inner-expenses-table td {
-  padding: 12px;
+  padding: 14px;
   border: 1px solid #ddd;
   text-align: left;
+  font-size: 1rem;
 }
 
 .inner-expenses-table tr:nth-child(even) {
-  background-color: #e0f2f1;
+  background-color: #f1f8e9; /* Lighter green for inner table */
 }
 
 .inner-expenses-table tr:hover {
-  background-color: #c8e6c9; /* Old hover color */
+  background-color: #c5e1a5; /* Lighter green on hover */
   transition: background-color 0.3s ease;
 }

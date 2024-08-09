@@ -18,12 +18,15 @@ const generateMonthsArray = (start, end) => {
   return months;
 };
 
-const InvoiceTable = ({ projectId, projectStartDate, projectEndDate, invoiceActual = {}, onInvoiceBudgetSave }) => {
+const InvoiceTable = ({ projectId, projectStartDate, projectEndDate, onInvoiceBudgetSave }) => {
   const [localInvoiceBudget, setLocalInvoiceBudget] = useState({});
+  const [invoiceActual, setInvoiceActual] = useState({});
   const [months, setMonths] = useState(generateMonthsArray(projectStartDate, projectEndDate));
   const [isEditing, setIsEditing] = useState(false);
-  const [totalBudget, setTotalBudget] = useState(0);
   const [initialOrderValue, setInitialOrderValue] = useState(0);
+  const [originalInvoiceBudget, setOriginalInvoiceBudget] = useState({});
+  const [originalInvoiceActual, setOriginalInvoiceActual] = useState({});
+  const [totalBudget, setTotalBudget] = useState(0);
 
   useEffect(() => {
     const fetchProjectData = async () => {
@@ -36,9 +39,18 @@ const InvoiceTable = ({ projectId, projectStartDate, projectEndDate, invoiceActu
 
         // Fetch invoice data
         const invoiceResponse = await axios.get(`http://localhost:5000/projects/${projectId}/invoices`);
-        const invoiceData = invoiceResponse.data[0]; // Assuming there's only one invoice record
-        setLocalInvoiceBudget(invoiceData.invoice_budget || {});
-        setTotalBudget(initialBudget - Object.values(invoiceData.invoice_budget || {}).reduce((a, b) => a + b, 0));
+        const invoiceData = invoiceResponse.data[0] || {}; // Assuming there's only one invoice record
+
+        const fetchedInvoiceBudget = invoiceData.invoice_budget || {};
+        const fetchedInvoiceActual = invoiceData.invoice_actual || {};
+
+        setOriginalInvoiceBudget(fetchedInvoiceBudget);
+        setOriginalInvoiceActual(fetchedInvoiceActual);
+
+        setLocalInvoiceBudget(fetchedInvoiceBudget);
+        setInvoiceActual(fetchedInvoiceActual);
+
+        setTotalBudget(initialBudget - Object.values(fetchedInvoiceBudget).reduce((a, b) => a + b, 0));
       } catch (error) {
         console.error('Error fetching project or invoice data:', error);
       }
@@ -65,34 +77,38 @@ const InvoiceTable = ({ projectId, projectStartDate, projectEndDate, invoiceActu
     }
   };
 
+  const handleActualChange = (month, value) => {
+    setInvoiceActual(prev => ({
+      ...prev,
+      [month]: parseFloat(value) || 0
+    }));
+  };
+
   const handleSave = async () => {
     try {
-      await axios.post(`http://localhost:5000/projects/${projectId}/invoices`, { invoiceBudget: localInvoiceBudget });
+      await axios.post(`http://localhost:5000/projects/${projectId}/invoices`, { invoiceBudget: localInvoiceBudget, invoiceActual });
       onInvoiceBudgetSave(localInvoiceBudget);
       setIsEditing(false);
-      alert('Invoice budget saved successfully!');
+      alert('Invoice budget and actual saved successfully!');
     } catch (error) {
-      console.error('Error saving invoice budget:', error);
-      alert('Error saving invoice budget.');
+      console.error('Error saving invoice budget and actual:', error);
+      alert('Error saving invoice budget and actual.');
     }
   };
 
   const handleCancel = () => {
-    setLocalInvoiceBudget({});
+    setLocalInvoiceBudget(originalInvoiceBudget);
+    setInvoiceActual(originalInvoiceActual);
     setIsEditing(false);
-  };
-
-  const handlePrint = () => {
-    window.print();
   };
 
   return (
     <div className="invoice-table-container">
       <div className="invoice-table-header">
         <h2>Invoice Budgets</h2>
-        <p>Order Value: ${initialOrderValue.toFixed(2)}</p>
+        <p>Order Value: Rs. {initialOrderValue.toFixed(2)}</p>
         <div className="remaining-budget">
-          <p>Total Remaining Budget: ${totalBudget.toFixed(2)}</p>
+          <p>Total Remaining Budget: Rs. {totalBudget.toFixed(2)}</p>
         </div>
       </div>
       <table>
@@ -119,7 +135,15 @@ const InvoiceTable = ({ projectId, projectStartDate, projectEndDate, invoiceActu
                 )}
               </td>
               <td>
-                <span>{invoiceActual[month] || 0}</span>
+                {isEditing ? (
+                  <input
+                    type="number"
+                    value={invoiceActual[month] || 0}
+                    onChange={e => handleActualChange(month, e.target.value)}
+                  />
+                ) : (
+                  <span>{invoiceActual[month] || 0}</span>
+                )}
               </td>
             </tr>
           ))}
@@ -134,7 +158,6 @@ const InvoiceTable = ({ projectId, projectStartDate, projectEndDate, invoiceActu
         ) : (
           <button onClick={() => setIsEditing(true)}>Edit</button>
         )}
-        <button onClick={handlePrint} className="print-button">Print</button>
       </div>
     </div>
   );

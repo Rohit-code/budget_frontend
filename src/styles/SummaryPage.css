@@ -1,72 +1,79 @@
 body {
   font-family: 'Arial', sans-serif;
-  background: linear-gradient(135deg, #ffecb3, #fbcf9d);
+  background: linear-gradient(135deg, #ffeb3b, #ff8f00);
   margin: 0;
   padding: 0;
 }
 
 .summary-page-container {
-  width: 80%;
+  width: 85%;
   margin: 40px auto;
   padding: 30px;
-  background-color: #ffffff;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(to right, #ffffff, #ffecb3);
+  border-radius: 25px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease-in-out;
 }
 
 .summary-page-container:hover {
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.2);
 }
 
 h1, h2 {
   text-align: center;
-  color: #2c3e50;
-  margin-bottom: 20px;
+  color: #34495e;
+  margin-bottom: 25px;
 }
 
 h1 {
-  font-size: 2em; /* Responsive font size */
-  font-weight: 700;
+  font-size: 2.5em; /* Larger responsive font size */
+  font-weight: 800;
+  letter-spacing: 1.5px;
 }
 
 h2 {
-  font-size: 1.5em; /* Responsive font size */
-  font-weight: 600;
-  color: #ff7043;
+  font-size: 2em; /* Larger responsive font size */
+  font-weight: 700;
+  color: #ff5722;
+  letter-spacing: 1.2px;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
-  font-size: 1rem; /* Base font size */
-  border-radius: 10px;
+  margin-top: 25px;
+  font-size: 1.1rem; /* Base font size */
+  border-radius: 12px;
   background-color: #ffffff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
 }
 
 thead th {
-  background-color: #ff7043;
+  background-color: #ff5722;
   color: white;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 th, td {
-  padding: 10px;
+  padding: 14px;
   border: 1px solid #ddd;
   text-align: center;
+  transition: background-color 0.3s ease-in-out;
 }
 
 tbody tr:nth-child(even) {
-  background-color: #fff3e0;
+  background-color: #ffecb3;
 }
 
 tbody tr:hover {
-  background-color: #ffe0b2;
+  background-color: #ffe082;
 }
 
 td {
   color: #333;
+  font-size: 1rem;
 }
 
 @media (max-width: 768px) {
@@ -76,16 +83,16 @@ td {
   }
 
   h1 {
-    font-size: 1.5em;
+    font-size: 1.8em;
   }
 
   h2 {
-    font-size: 1.2em;
+    font-size: 1.5em;
   }
 
   th, td {
-    font-size: 0.9rem;
-    padding: 8px;
+    font-size: 0.95rem;
+    padding: 10px;
   }
 
   table, thead, tbody, th, td, tr {
@@ -114,10 +121,11 @@ td {
     content: attr(data-label);
     position: absolute;
     left: 0;
-    width: 50%;
+    width: 45%;
     padding-left: 10px;
     white-space: nowrap;
     font-weight: bold;
-    color: #ff7043;
+    color: #ff5722;
+    font-size: 0.95rem;
   }
 }

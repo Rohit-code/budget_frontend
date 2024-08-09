@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import InvoiceTable from './InvoiceTable';
 
 const categories = [
   'Travel Desk', 'Accommodation', 'Site Travel', 'Food',
@@ -28,11 +27,10 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
   const [expenses, setExpenses] = useState([]);
   const [newBudget, setNewBudget] = useState({});
   const [newActual, setNewActual] = useState({});
+  const [invoiceBudget, setInvoiceBudget] = useState({});
   const [months, setMonths] = useState(generateMonthsArray(projectStartDate, projectEndDate));
   const [isEditable, setIsEditable] = useState(false);
   const [projectBudget, setProjectBudget] = useState(0);
-  const [invoiceBudget, setInvoiceBudget] = useState({});
-  const [invoiceActual, setInvoiceActual] = useState({});
 
   useEffect(() => {
     const fetchProjectData = async () => {
@@ -41,8 +39,6 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
         setProjectBudget(projectResponse.data.budget);
 
         const expensesResponse = await axios.get(`http://localhost:5000/projects/${projectId}/expenses`);
-        console.log('Fetched expenses response:', expensesResponse.data);
-
         const budgetData = {};
         const actualData = {};
 
@@ -54,11 +50,19 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
           actualData[month][category] = parseFloat(actual) || 0;
         });
 
-        console.log('Parsed budget data:', budgetData);
-        console.log('Parsed actual data:', actualData);
         setNewBudget(budgetData);
         setNewActual(actualData);
         setExpenses(expensesResponse.data);
+
+        const invoiceResponse = await axios.get(`http://localhost:5000/projects/${projectId}/invoices`);
+        const combinedInvoiceBudget = invoiceResponse.data.reduce((acc, invoice) => {
+          Object.keys(invoice.invoice_budget).forEach(month => {
+            if (!acc[month]) acc[month] = 0;
+            acc[month] += parseFloat(invoice.invoice_budget[month]) || 0;
+          });
+          return acc;
+        }, {});
+        setInvoiceBudget(combinedInvoiceBudget);
         setMonths(generateMonthsArray(projectStartDate, projectEndDate));
       } catch (error) {
         console.error('Error fetching project data:', error);
@@ -66,22 +70,7 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
     };
 
     fetchProjectData();
-
-    setNewBudget({});
-    setNewActual({});
   }, [projectId, projectStartDate, projectEndDate]);
-
-  useEffect(() => {
-    const calculateInvoiceActual = () => {
-      const actuals = {};
-      months.forEach(month => {
-        actuals[month] = calculateCashOutflow(month, 'actual');
-      });
-      setInvoiceActual(actuals);
-    };
-
-    calculateInvoiceActual();
-  }, [newActual, months]);
 
   const handleBudgetChange = (month, category, value) => {
     setNewBudget(prev => ({
@@ -125,8 +114,13 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
     }
   };
 
-  const handleInvoiceBudgetSave = (newInvoiceBudget) => {
-    setInvoiceBudget(newInvoiceBudget);
+  const calculateSum = (data, type) => {
+    return months.reduce((sum, month) => {
+      return sum + categories.reduce((catSum, category) => {
+        const value = data[month]?.[category] || 0;
+        return catSum + value;
+      }, 0);
+    }, 0);
   };
 
   const calculateCashOutflow = (month, type) => {
@@ -140,15 +134,6 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
   return (
     <div>
       <h2>Expenses for the Project</h2>
-      <InvoiceTable 
-        projectId={projectId} 
-        projectStartDate={projectStartDate}
-        projectEndDate={projectEndDate}
-        initialInvoiceBudget={invoiceBudget} 
-        invoiceActual={invoiceActual} 
-        onInvoiceBudgetSave={handleInvoiceBudgetSave} 
-      />
-      <h2>Detailed Expenses</h2>
       <table>
         <thead>
           <tr>
@@ -162,6 +147,23 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
               <React.Fragment key={month}>
                 <th>Budget</th>
                 <th>Actual</th>
+              </React.Fragment>
+            ))}
+          </tr>
+          <tr style={{ backgroundColor: '#e0f7fa', fontWeight: 'bold' }}>
+            <td>Invoice Plan</td>
+            {months.map(month => (
+              <td key={month} colSpan="2">
+                {invoiceBudget[month] || 0}
+              </td>
+            ))}
+          </tr>
+          <tr style={{ backgroundColor: '#e0f7fa', fontWeight: 'bold' }}>
+            <td>Cash Outflow</td>
+            {months.map(month => (
+              <React.Fragment key={month}>
+                <td>{calculateCashOutflow(month, 'budget')}</td>
+                <td>{calculateCashOutflow(month, 'actual')}</td>
               </React.Fragment>
             ))}
           </tr>

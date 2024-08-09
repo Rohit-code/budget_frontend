@@ -448,7 +448,7 @@ const calculateStartEndDates = (invoiceBudget) => {
 
 app.post('/projects/:projectId/invoices', async (req, res) => {
   const { projectId } = req.params;
-  const { invoiceBudget } = req.body;
+  const { invoiceBudget, invoiceActual } = req.body;
 
   console.log('Raw request body:', req.body);
 
@@ -462,15 +462,16 @@ app.post('/projects/:projectId/invoices', async (req, res) => {
     }
     const order_value = projectResult.rows[0].order_value;
 
-    // Calculate invoice actual dynamically by summing all values in invoiceBudget
-    const invoice_actual = Object.values(invoiceBudget).reduce((sum, value) => sum + value, 0);
+    // Calculate invoice actual dynamically if not provided
+    const invoice_actual_sum = Object.values(invoiceActual || {}).reduce((sum, value) => sum + value, 0);
 
     console.log('Received data:', {
       projectId,
       start_date,
       end_date,
       invoice_budget: JSON.stringify(invoiceBudget),  // Convert to JSON string
-      invoice_actual,
+      invoice_actual: JSON.stringify(invoiceActual),  // Convert to JSON string
+      invoice_actual_sum,
       order_value
     });
 
@@ -478,12 +479,12 @@ app.post('/projects/:projectId/invoices', async (req, res) => {
     const months = Object.keys(invoiceBudget);
 
     // Validate required fields
-    if (!start_date || !end_date || invoiceBudget === undefined || invoice_actual === undefined || order_value === undefined) {
+    if (!start_date || !end_date || invoiceBudget === undefined || invoice_actual_sum === undefined || order_value === undefined) {
       console.error('Missing required fields:', {
         start_date,
         end_date,
         invoiceBudget,
-        invoice_actual,
+        invoice_actual_sum,
         order_value
       });
       return res.status(400).json({ error: 'Missing required fields' });
@@ -499,13 +500,13 @@ app.post('/projects/:projectId/invoices', async (req, res) => {
       // Update existing invoice
       await pool.query(
         'UPDATE invoices SET invoice_budget = $1, invoice_actual = $2, order_value = $3, months = $4 WHERE project_id = $5 AND start_date = $6 AND end_date = $7',
-        [JSON.stringify(invoiceBudget), invoice_actual, order_value, months, projectId, start_date, end_date]
+        [JSON.stringify(invoiceBudget), JSON.stringify(invoiceActual), order_value, months, projectId, start_date, end_date]
       );
     } else {
       // Insert new invoice
       await pool.query(
         'INSERT INTO invoices (project_id, start_date, end_date, months, invoice_budget, invoice_actual, order_value) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-        [projectId, start_date, end_date, months, JSON.stringify(invoiceBudget), invoice_actual, order_value]
+        [projectId, start_date, end_date, months, JSON.stringify(invoiceBudget), JSON.stringify(invoiceActual), order_value]
       );
     }
 
@@ -518,9 +519,29 @@ app.post('/projects/:projectId/invoices', async (req, res) => {
 
 app.get('/projects/:projectId/invoices', async (req, res) => {
   const { projectId } = req.params;
+  console.log("Received projectId:", projectId);
+
+  if (!projectId) {
+    return res.status(400).json({ error: 'Project ID is required' });
+  }
 
   try {
-    const result = await pool.query('SELECT * FROM invoices WHERE project_id = $1', [projectId]);
+    const result = await pool.query(
+      'SELECT * FROM invoices WHERE project_id = $1',
+      [projectId]
+    );
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error fetching invoices:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/invoices', async (req, res) => {
+  const { projectId } = req.params;
+
+  try {
+    const result = await pool.query('SELECT * FROM invoices');
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'No invoices found for the given project ID' });
     }
