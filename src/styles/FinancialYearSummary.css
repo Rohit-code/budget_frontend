@@ -1,80 +1,98 @@
-/* General table styles */
-table {
+body {
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(to right, #f0f4c3, #a5d6a7); /* Soft green and light yellow gradient */
+  margin: 0;
+  padding: 0;
+  color: #2c3e50; /* Deep blue-gray for text */
+}
+
+.financial-year-summary {
+  margin: 40px auto;
+  padding: 30px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  background: #ffffff;
+  max-width: 85%;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.financial-year-summary:hover {
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
+  transform: translateY(-8px);
+}
+
+.financial-year-summary h2 {
+  text-align: center;
+  color: #2e7d32; /* Dark green */
+  margin-bottom: 20px;
+  font-size: 2.2em;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for text */
+}
+
+.financial-year-summary p {
+  color: #4f4f4f; /* Dark gray for readability */
+  font-size: 1.2rem;
+  line-height: 1.8;
+}
+
+.expenses-table {
   width: 100%;
   border-collapse: collapse;
-  margin: 20px 0;
-  font-family: Arial, sans-serif;
+  margin: 25px 0;
+  font-size: 1rem;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Header styles */
-thead {
-  background-color: #4CAF50; /* Darker green */
+.expenses-table thead {
+  background: linear-gradient(to right, #66bb6a, #43a047); /* Vibrant green gradient */
   color: white;
+}
+
+.expenses-table th, .expenses-table td {
+  padding: 16px;
+  border: 1px solid #ddd;
   text-align: left;
+  font-size: 1.1rem;
 }
 
-/* Header and cell styles */
-th, td {
-  border: 1px solid #ddd; /* Light gray border */
-  padding: 12px; /* Increased padding for better spacing */
+.expenses-table th {
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(to right, #26a69a, #00796b); /* Vibrant teal gradient */
+}
+
+.expenses-table tr:nth-child(even) {
+  background-color: #e8f5e9; /* Light green for even rows */
+}
+
+.expenses-table tr:hover {
+  background-color: #b9f6ca; /* Bright light green on hover */
+  transition: background-color 0.3s ease;
+}
+
+.inner-expenses-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.inner-expenses-table td {
+  padding: 14px;
+  border: 1px solid #ddd;
   text-align: left;
+  font-size: 1rem;
 }
 
-/* Zebra striping for rows */
-tr:nth-child(even) {
-  background-color: #f9f9f9; /* Light gray */
+.inner-expenses-table tr:nth-child(even) {
+  background-color: #f1f8e9; /* Lighter green for inner table */
 }
 
-/* Hover effect */
-tr:hover {
-  background-color: #f1f1f1; /* Slightly darker gray */
-}
-
-/* Additional styling */
-th {
-  font-weight: bold;
-}
-
-td {
-  font-size: 14px;
-}
-
-/* Responsive table styles */
-@media screen and (max-width: 600px) {
-  table {
-    width: 100%;
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-
-  th, td {
-    display: block;
-    text-align: right;
-    padding: 10px;
-    border: none;
-  }
-
-  th {
-    background-color: #4CAF50; /* Keep header color */
-    color: white;
-    text-align: center;
-  }
-
-  td {
-    border-bottom: 1px solid #ddd;
-    position: relative;
-    padding-left: 50%;
-  }
-
-  td::before {
-    content: attr(data-label);
-    position: absolute;
-    left: 0;
-    width: 50%;
-    padding-left: 10px;
-    white-space: nowrap;
-    font-weight: bold;
-    color: #4CAF50; /* Header color for labels */
-  }
+.inner-expenses-table tr:hover {
+  background-color: #c5e1a5; /* Lighter green on hover */
+  transition: background-color 0.3s ease;
 }

@@ -43,25 +43,50 @@ Before running the application, ensure you have the following installed:
     - Create tables with the following schema:
 
     ```sql
-    CREATE TABLE projects (
-      id SERIAL PRIMARY KEY,
-      name VARCHAR(100) NOT NULL,
-      start_date DATE NOT NULL,
-      end_date DATE NOT NULL,
-      budget NUMERIC(10, 2) NOT NULL
+    -- Create the 'projects' table
+    CREATE TABLE public.projects (
+        id INTEGER NOT NULL DEFAULT nextval('projects_id_seq'::regclass),
+        name VARCHAR(100) NOT NULL,
+        start_date DATE NOT NULL,
+        end_date DATE NOT NULL,
+        budget NUMERIC(10,2) NOT NULL,
+        order_value NUMERIC(10,2) NOT NULL,
+        PRIMARY KEY (id)
     );
 
-    CREATE TABLE expenses (
-      id SERIAL PRIMARY KEY,
-      project_id INTEGER NOT NULL REFERENCES projects(id),
-      month VARCHAR(20) NOT NULL,
-      category VARCHAR(50) NOT NULL,
-      budget NUMERIC(10, 2),
-      actual NUMERIC(10, 2)
+    -- Create the 'expenses' table
+    CREATE TABLE public.expenses (
+        id INTEGER NOT NULL DEFAULT nextval('expenses_id_seq'::regclass),
+        project_id INTEGER NOT NULL,
+        month VARCHAR(20) NOT NULL,
+        category VARCHAR(50) NOT NULL,
+        budget NUMERIC(10,2),
+        actual NUMERIC(10,2),
+        PRIMARY KEY (id),
+        UNIQUE (project_id, month, category),
+        FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE
     );
 
-    ALTER TABLE expenses
-    ADD CONSTRAINT unique_expense UNIQUE (project_id, month, category);
+    -- Create the 'invoices' table
+    CREATE TABLE public.invoices (
+        id INTEGER NOT NULL DEFAULT nextval('invoices_id_seq'::regclass),
+        project_id INTEGER NOT NULL,
+        start_date DATE NOT NULL,
+        end_date DATE NOT NULL,
+        order_value NUMERIC(10,2) NOT NULL,
+        invoice_budget JSONB,
+        months TEXT[],
+        invoice_actual JSONB,
+        PRIMARY KEY (id),
+        UNIQUE (project_id, start_date, end_date),
+        FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE
+    );
+
+    -- Create sequences for auto-incrementing IDs
+    CREATE SEQUENCE public.projects_id_seq;
+    CREATE SEQUENCE public.expenses_id_seq;
+    CREATE SEQUENCE public.invoices_id_seq;
+
     ```
 
 5. Configure the database connection in `server.js`:

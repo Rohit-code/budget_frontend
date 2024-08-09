@@ -26,49 +26,17 @@ function formatDateFromDB(dateStr) {
   return `${day}/${month}/${year}`;
 }
 
-// Endpoint to get completed projects within a date range
-app.get('/projects/completed', async (req, res) => {
-  const { start_date, end_date } = req.query;
-  try {
-    const result = await pool.query(
-      `SELECT * FROM projects 
-       WHERE end_date BETWEEN $1 AND $2`,
-      [start_date, end_date]
-    );
-    const projects = result.rows.map(project => ({
-      ...project,
-      start_date: formatDateFromDB(project.start_date),
-      end_date: formatDateFromDB(project.end_date)
-    }));
-    res.send(projects);
-  } catch (error) {
-    console.error('Error fetching completed projects:', error);
-    res.status(500).send({ error: 'Server error' });
-  }
-});
-
 // Endpoint to create a new project
 app.post('/projects', async (req, res) => {
-  const { name, start_date, end_date, budget } = req.body;
+  const { name, start_date, end_date, budget, order_value } = req.body;
   try {
     const result = await pool.query(
-      'INSERT INTO projects (name, start_date, end_date, budget) VALUES ($1, $2, $3, $4) RETURNING *',
-      [name, start_date, end_date, budget]
+      'INSERT INTO projects (name, start_date, end_date, order_value ,budget ) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [name, start_date, end_date, budget, order_value || null] // Set default if order_value is not provided
     );
     res.send(result.rows[0]);
   } catch (error) {
     console.error('Error adding project:', error);
-    res.status(500).send({ error: 'Server error' });
-  }
-});
-
-// Endpoint to get all projects
-app.get('/projects', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM projects');
-    res.send(result.rows);
-  } catch (error) {
-    console.error('Error fetching projects:', error);
     res.status(500).send({ error: 'Server error' });
   }
 });
@@ -253,75 +221,6 @@ app.get('/project-summary', async (req, res) => {
   }
 });
 
-// New Endpoint to handle user registration
-app.post('/register', async (req, res) => {
-  const { name, dept, emailid, password } = req.body;
-  try {
-    const result = await pool.query(
-      'INSERT INTO employee (name, dept, emailid, password) VALUES ($1, $2, $3, $4) RETURNING *',
-      [name, dept, emailid, password]
-    );
-    res.send(result.rows[0]);
-  } catch (error) {
-    console.error('Error registering user:', error);
-    res.status(500).send({ error: 'Server error' });
-  }
-});
-
-// Endpoint to update a project
-app.put('/projects/:id', async (req, res) => {
-  const { id } = req.params;
-  const { name, start_date, end_date, budget } = req.body;
-
-  try {
-    const result = await pool.query(
-      'UPDATE projects SET name = $1, start_date = $2, end_date = $3, budget = $4 WHERE id = $5 RETURNING *',
-      [name, start_date, end_date, budget, id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).send({ error: 'Project not found' });
-    }
-
-    res.send(result.rows[0]);
-  } catch (error) {
-    console.error('Error updating project:', error);
-    res.status(500).send({ error: 'Server error' });
-  }
-});
-
-// New Endpoint to handle user login
-app.post('/login', async (req, res) => {
-  const { emailid, password } = req.body;
-  try {
-    const result = await pool.query(
-      'SELECT * FROM employee WHERE emailid = $1 AND password = $2',
-      [emailid, password]
-    );
-    if (result.rows.length === 0) {
-      return res.status(401).send({ error: 'Invalid email or password' });
-    }
-    res.send({ success: true });
-  } catch (error) {
-    console.error('Error logging in user:', error);
-    res.status(500).send({ error: 'Server error' });
-  }
-});
-
-// Endpoint to create a new project
-app.post('/projects', async (req, res) => {
-  const { name, start_date, end_date, budget } = req.body;
-  try {
-    const result = await pool.query(
-      'INSERT INTO projects (name, start_date, end_date, budget) VALUES ($1, $2, $3, $4) RETURNING *',
-      [name, formatDateToDB(start_date), formatDateToDB(end_date), budget]
-    );
-    res.send(result.rows[0]);
-  } catch (error) {
-    console.error('Error adding project:', error);
-    res.status(500).send({ error: 'Server error' });
-  }
-});
 
 // Endpoint to get all projects
 app.get('/projects', async (req, res) => {
@@ -382,40 +281,6 @@ app.put('/projects/:id', async (req, res) => {
   }
 });
 
-// Endpoint to get financial years based on start and end dates
-
-// app.get('/financial-years', async (req, res) => {
-//   let { start_date, end_date } = req.query;
-  
-//   // If no dates are provided, use a default wide range
-//   if (!start_date || !end_date) {
-//     start_date = '1900-01-01'; // a very early date
-//     end_date = '2200-12-31'; // a very future date
-//   }
-
-//   console.log('Received start_date:', start_date, 'end_date:', end_date); // Debug log
-
-//   try {
-//     const result = await pool.query(`
-//       SELECT DISTINCT
-//         CASE
-//           WHEN EXTRACT(MONTH FROM start_date) >= 4 THEN EXTRACT(YEAR FROM start_date) || '/' || (EXTRACT(YEAR FROM start_date) + 1)
-//           ELSE (EXTRACT(YEAR FROM start_date) - 1) || '/' || EXTRACT(YEAR FROM start_date)
-//         END AS fiscal_year
-//       FROM projects
-//       WHERE start_date BETWEEN $1 AND $2 OR end_date BETWEEN $1 AND $2
-//       ORDER BY fiscal_year;
-//     `, [start_date, end_date]);
-
-//     console.log('Query result:', result.rows); // Debug log
-//     const years = result.rows.map(row => row.fiscal_year);
-//     res.json(years);
-//   } catch (error) {
-//     console.error('Error fetching financial years:', error);
-//     res.status(500).send('Server error');
-//   }
-// });
-
 app.get('/financial-years', async (req, res) => {
   const query = `
       WITH fiscal_years AS (
@@ -450,56 +315,6 @@ app.get('/financial-years', async (req, res) => {
   }
 });
 
-
-// app.get('/financial-years', async (req, res) => {
-//   const query = `
-//       WITH fiscal_years AS (
-//           SELECT DISTINCT
-//               CASE
-//                   WHEN EXTRACT(MONTH FROM start_date) >= 4 THEN EXTRACT(YEAR FROM start_date)
-//                   ELSE EXTRACT(YEAR FROM start_date) - 1
-//               END AS financial_year
-//           FROM projects
-//           UNION
-//           SELECT DISTINCT
-//               CASE
-//                   WHEN EXTRACT(MONTH FROM end_date) >= 4 THEN EXTRACT(YEAR FROM end_date)
-//                   ELSE EXTRACT(YEAR FROM end_date) - 1
-//               END AS financial_year
-//           FROM projects
-//       )
-//       SELECT 
-//           fy.financial_year,
-//           p.id AS project_id,
-//           p.name AS project_name,
-//           p.start_date,
-//           p.end_date,
-//           p.budget
-//       FROM 
-//           fiscal_years fy
-//       JOIN 
-//           projects p ON fy.financial_year BETWEEN 
-//               CASE
-//                   WHEN EXTRACT(MONTH FROM p.start_date) >= 4 THEN EXTRACT(YEAR FROM p.start_date)
-//                   ELSE EXTRACT(YEAR FROM p.start_date) - 1
-//               END AND 
-//               CASE
-//                   WHEN EXTRACT(MONTH FROM p.end_date) >= 4 THEN EXTRACT(YEAR FROM p.end_date)
-//                   ELSE EXTRACT(YEAR FROM p.end_date) - 1
-//               END
-//       ORDER BY 
-//           fy.financial_year, p.id;
-//   `;
-
-//   try {
-//       const result = await pool.query(query);
-//       res.json(result.rows);
-//   } catch (err) {
-//       console.error(err);
-//       res.status(500).send('Server error');
-//   }
-// });
-
 app.get('/fiscal-year-months', async (req, res) => {
   const query = `
       WITH fiscal_year_months AS (
@@ -533,60 +348,6 @@ app.get('/fiscal-year-months', async (req, res) => {
   }
 });
 
-
-// Endpoint to fetch projects and expenses for a specific financial year
-// app.get('/financial-year-summary/:year', async (req, res) => {
-//   const { year } = req.params;
-//   const [startYear, endYear] = year.split('/');
-
-//   const startOfYear1 = `${startYear}-04-01`;
-//   const endOfYear1 = `${startYear}-12-31`;
-//   const startOfYear2 = `${endYear}-01-01`;
-//   const endOfYear2 = `${endYear}-03-31`;
-
-//   try {
-//     // Fetch expenses for the first part of the financial year
-//     const result1 = await pool.query(`
-//       SELECT
-//         EXTRACT(MONTH FROM e.date) AS month,
-//         COALESCE(SUM(e.actual), 0) AS total_actual_expenses
-//       FROM expenses e
-//       JOIN projects p ON p.id = e.project_id
-//       WHERE e.date BETWEEN $1 AND $2
-//       AND p.start_date <= $2 AND p.end_date >= $1
-//       GROUP BY EXTRACT(MONTH FROM e.date)
-//       ORDER BY EXTRACT(MONTH FROM e.date);
-//     `, [startOfYear1, endOfYear1]);
-
-//     // Fetch expenses for the second part of the financial year
-//     const result2 = await pool.query(`
-//       SELECT
-//         EXTRACT(MONTH FROM e.date) AS month,
-//         COALESCE(SUM(e.actual), 0) AS total_actual_expenses
-//       FROM expenses e
-//       JOIN projects p ON p.id = e.project_id
-//       WHERE e.date BETWEEN $1 AND $2
-//       AND p.start_date <= $2 AND p.end_date >= $1
-//       GROUP BY EXTRACT(MONTH FROM e.date)
-//       ORDER BY EXTRACT(MONTH FROM e.date);
-//     `, [startOfYear2, endOfYear2]);
-
-//     // Combine results from both financial years
-//     const expenses = {};
-//     result1.rows.forEach(row => {
-//       const monthName = new Date(Date.UTC(0, row.month - 1)).toLocaleString('en-US', { month: 'short' }) + ` ${startYear}`;
-//       expenses[monthName] = (expenses[monthName] || 0) + parseFloat(row.total_actual_expenses);
-//     });
-//     result2.rows.forEach(row => {
-//       const monthName = new Date(Date.UTC(0, row.month - 1)).toLocaleString('en-US', { month: 'short' }) + ` ${endYear}`;
-//       expenses[monthName] = (expenses[monthName] || 0) + parseFloat(row.total_actual_expenses);
-//     });
-
-//     res.json(expenses);
-//   } catch (error) {
-//     console.error('Error fetching financial year summary:', error);
-//     res.status(500).send('Server error');
-//   }
 const getFinancialYearDates = (year) => {
   const startDate = new Date(`${year}-04-01`);
   const endDate = new Date(`${parseInt(year, 10) + 1}-03-31`);
@@ -671,6 +432,128 @@ app.get('/projects/financial-year/:startYear', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
+const calculateStartEndDates = (invoiceBudget) => {
+  const months = Object.keys(invoiceBudget);
+  const startDate = new Date(`${months[0]}-01`);
+  const endDate = new Date(`${months[months.length - 1]}-01`);
+  endDate.setMonth(endDate.getMonth() + 1); // Move to the first day of the next month
+  endDate.setDate(0); // Move to the last day of the current month
+
+  return {
+    start_date: startDate.toISOString().substring(0, 10),
+    end_date: endDate.toISOString().substring(0, 10)
+  };
+};
+
+app.post('/projects/:projectId/invoices', async (req, res) => {
+  const { projectId } = req.params;
+  const { invoiceBudget, invoiceActual } = req.body;
+
+  console.log('Raw request body:', req.body);
+
+  const { start_date, end_date } = calculateStartEndDates(invoiceBudget);
+
+  try {
+    // Retrieve order value from projects table
+    const projectResult = await pool.query('SELECT order_value FROM projects WHERE id = $1', [projectId]);
+    if (projectResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+    const order_value = projectResult.rows[0].order_value;
+
+    // Calculate invoice actual dynamically if not provided
+    const invoice_actual_sum = Object.values(invoiceActual || {}).reduce((sum, value) => sum + value, 0);
+
+    console.log('Received data:', {
+      projectId,
+      start_date,
+      end_date,
+      invoice_budget: JSON.stringify(invoiceBudget),  // Convert to JSON string
+      invoice_actual: JSON.stringify(invoiceActual),  // Convert to JSON string
+      invoice_actual_sum,
+      order_value
+    });
+
+    // Extract months from invoiceBudget keys
+    const months = Object.keys(invoiceBudget);
+
+    // Validate required fields
+    if (!start_date || !end_date || invoiceBudget === undefined || invoice_actual_sum === undefined || order_value === undefined) {
+      console.error('Missing required fields:', {
+        start_date,
+        end_date,
+        invoiceBudget,
+        invoice_actual_sum,
+        order_value
+      });
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Check if invoice already exists
+    const existingInvoice = await pool.query(
+      'SELECT * FROM invoices WHERE project_id = $1 AND start_date = $2 AND end_date = $3',
+      [projectId, start_date, end_date]
+    );
+
+    if (existingInvoice.rows.length > 0) {
+      // Update only the invoice_budget and invoice_actual columns
+      await pool.query(
+        'UPDATE invoices SET invoice_budget = $1, invoice_actual = $2 WHERE project_id = $3 AND start_date = $4 AND end_date = $5',
+        [JSON.stringify(invoiceBudget), JSON.stringify(invoiceActual), projectId, start_date, end_date]
+      );
+    } else {
+      // Insert a new invoice with only invoice_budget and invoice_actual
+      await pool.query(
+        'INSERT INTO invoices (project_id, start_date, end_date, invoice_budget, invoice_actual) VALUES ($1, $2, $3, $4, $5)',
+        [projectId, start_date, end_date, JSON.stringify(invoiceBudget), JSON.stringify(invoiceActual)]
+      );
+    }
+
+    res.status(200).json({ message: 'Invoice saved successfully!' });
+  } catch (error) {
+    console.error('Error saving invoice:', error.message);
+    res.status(500).json({ error: 'Error saving invoice' });
+  }
+});
+
+
+app.get('/projects/:projectId/invoices', async (req, res) => {
+  const { projectId } = req.params;
+  console.log("Received projectId:", projectId);
+
+  if (!projectId) {
+    return res.status(400).json({ error: 'Project ID is required' });
+  }
+
+  try {
+    const result = await pool.query(
+      'SELECT * FROM invoices WHERE project_id = $1',
+      [projectId]
+    );
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error fetching invoices:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/invoices', async (req, res) => {
+  const { projectId } = req.params;
+
+  try {
+    const result = await pool.query('SELECT * FROM invoices');
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'No invoices found for the given project ID' });
+    }
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error fetching invoices:', error.message);
+    res.status(500).json({ error: 'Error fetching invoices' });
+  }
+});
+
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
