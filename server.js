@@ -379,7 +379,13 @@ app.get('/projects/financial-year/:startYear', async (req, res) => {
           p.name,
           p.start_date,
           p.end_date,
-          p.budget
+          CASE
+            WHEN p.start_date >= (SELECT start_date FROM date_range) THEN p.budget
+            ELSE p.budget - COALESCE((SELECT SUM(e.actual) 
+                                      FROM expenses e
+                                      WHERE e.project_id = p.id
+                                      AND TO_DATE(e.month, 'Mon YYYY') < (SELECT start_date FROM date_range)), 0)
+          END AS budget
         FROM projects p
         WHERE p.start_date <= (SELECT end_date FROM date_range)
           AND p.end_date >= (SELECT start_date FROM date_range)
