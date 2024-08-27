@@ -12,8 +12,10 @@ body {
   border: 1px solid #ddd;
   border-radius: 15px;
   background-color: #ffffff;
-  max-width: 85%;
+  max-width: 95%; /* Allow the container to be wider */
+  width: auto; /* Adjust the width automatically */
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  overflow-x: auto; /* Add horizontal scrolling if content overflows */
   transition: all 0.3s ease-in-out;
 }
 
@@ -118,8 +120,8 @@ body {
 
 @media (max-width: 768px) {
   .project-detail-container {
-    width: 95%;
     padding: 20px;
+    max-width: 100%; /* Allow container to use full width on small screens */
   }
 
   h2 {

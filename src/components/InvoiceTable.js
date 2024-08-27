@@ -31,14 +31,14 @@ const InvoiceTable = ({ projectId, projectStartDate, projectEndDate, onInvoiceBu
   useEffect(() => {
     const fetchProjectData = async () => {
       try {
-        const projectResponse = await axios.get(`http://localhost:5000/projects/${projectId}`);
+        const projectResponse = await axios.get(`http://192.168.1.120:5000/projects/${projectId}`);
         const projectData = projectResponse.data;
         setInitialOrderValue(parseFloat(projectData.budget) || 0);
         const initialBudget = parseFloat(projectData.order_value) || 0;
         setTotalBudget(initialBudget);
 
         // Fetch invoice data
-        const invoiceResponse = await axios.get(`http://localhost:5000/projects/${projectId}/invoices`);
+        const invoiceResponse = await axios.get(`http://192.168.1.120:5000/projects/${projectId}/invoices`);
         const invoiceData = invoiceResponse.data[0] || {}; // Assuming there's only one invoice record
 
         const fetchedInvoiceBudget = invoiceData.invoice_budget || {};
@@ -86,7 +86,7 @@ const InvoiceTable = ({ projectId, projectStartDate, projectEndDate, onInvoiceBu
 
   const handleSave = async () => {
     try {
-      await axios.post(`http://localhost:5000/projects/${projectId}/invoices`, { invoiceBudget: localInvoiceBudget, invoiceActual });
+      await axios.post(`http://192.168.1.120:5000/projects/${projectId}/invoices`, { invoiceBudget: localInvoiceBudget, invoiceActual });
       onInvoiceBudgetSave(localInvoiceBudget);
       setIsEditing(false);
       alert('Invoice budget and actual saved successfully!');

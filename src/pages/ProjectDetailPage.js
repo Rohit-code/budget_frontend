@@ -13,7 +13,7 @@ function ProjectDetailPage({ onDeleteProject }) {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/projects/${projectId}`);
+        const response = await axios.get(`http://192.168.1.120:5000/projects/${projectId}`);
         setProject(response.data);
       } catch (error) {
         setError(error.response ? error.response.data.error : 'Error fetching project');

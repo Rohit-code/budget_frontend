@@ -11,7 +11,7 @@ const FinancialYearSummary = () => {
   useEffect(() => {
     const fetchFinancialYearSummary = async (selectedYear) => {
       try {
-        const response = await axios.get(`http://localhost:5000/projects/financial-year/${selectedYear}`);
+        const response = await axios.get(`http://192.168.1.120:5000/projects/financial-year/${selectedYear}`);
         const fetchedProjects = response.data.map(project => ({
           ...project,
           budget_spent: parseFloat(project.budget_spent),

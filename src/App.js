@@ -19,7 +19,7 @@ function App() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/projects');
+        const response = await axios.get('http://192.168.1.120:5000/projects');
         setProjects(response.data);
       } catch (error) {
         console.error('Error fetching projects:', error);
@@ -31,7 +31,7 @@ function App() {
   useEffect(() => {
     const fetchFinancialYears = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/financial-years');
+        const response = await axios.get('http://192.168.1.120:5000/financial-years');
         setFinancialYears(response.data);
       } catch (error) {
         console.error('Error fetching financial years:', error);
@@ -44,7 +44,7 @@ function App() {
     if (selectedYear) {
       const fetchProjectsForYear = async () => {
         try {
-          const response = await axios.get(`http://localhost:5000/projects?year=${selectedYear}`);
+          const response = await axios.get(`http://192.168.1.120:5000/projects?year=${selectedYear}`);
           console.log('Fetched projects for year:', response.data);
           setProjects(response.data);
         } catch (error) {
@@ -61,7 +61,7 @@ function App() {
 
   const handleDeleteProject = async (projectId) => {
     try {
-      await axios.delete(`http://localhost:5000/projects/${projectId}`);
+      await axios.delete(`http://192.168.1.120:5000/projects/${projectId}`);
       setProjects(prevProjects => prevProjects.filter(project => project.id !== projectId));
     } catch (error) {
       console.error('Error deleting project:', error);

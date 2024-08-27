@@ -35,10 +35,10 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
   useEffect(() => {
     const fetchProjectData = async () => {
       try {
-        const projectResponse = await axios.get(`http://localhost:5000/projects/${projectId}`);
+        const projectResponse = await axios.get(`http://192.168.1.120:5000/projects/${projectId}`);
         setProjectBudget(projectResponse.data.budget);
 
-        const expensesResponse = await axios.get(`http://localhost:5000/projects/${projectId}/expenses`);
+        const expensesResponse = await axios.get(`http://192.168.1.120:5000/projects/${projectId}/expenses`);
         const budgetData = {};
         const actualData = {};
 
@@ -54,7 +54,7 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
         setNewActual(actualData);
         setExpenses(expensesResponse.data);
 
-        const invoiceResponse = await axios.get(`http://localhost:5000/projects/${projectId}/invoices`);
+        const invoiceResponse = await axios.get(`http://192.168.1.120:5000/projects/${projectId}/invoices`);
         const combinedInvoiceBudget = invoiceResponse.data.reduce((acc, invoice) => {
           Object.keys(invoice.invoice_budget).forEach(month => {
             if (!acc[month]) acc[month] = 0;
@@ -105,7 +105,7 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
     const data = { newBudget, newActual, invoiceBudget };
 
     try {
-      await axios.post(`http://localhost:5000/projects/${projectId}/expenses`, data);
+      await axios.post(`http://192.168.1.120:5000/projects/${projectId}/expenses`, data);
       alert('Expenses saved successfully!');
       setIsEditable(false);
     } catch (error) {

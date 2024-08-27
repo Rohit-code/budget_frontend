@@ -3,9 +3,11 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const moment = require('moment');
 const { Pool } = require('pg');
+const logger = require('./logger'); 
+
 
 const app = express();
-const port = 5000;
+
 
 const pool = new Pool({
   user: 'postgres',
@@ -560,7 +562,11 @@ app.get('/invoices', async (req, res) => {
   }
 });
 
+const ipAddress = '192.168.1.120'; // Replace with your desired IP address
+const port = 5000;
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+
+
+app.listen(port, ipAddress, () => {
+  console.log(`Server running at http://${ipAddress}:${port}/`);
 });

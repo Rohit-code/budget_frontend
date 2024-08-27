@@ -8,7 +8,7 @@ function SummarySheet() {
   useEffect(() => {
     const fetchSummary = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/project-summary');
+        const response = await axios.get('http://192.168.1.120:5000/project-summary');
         const summaryData = response.data.map(project => {
           const totalActualExpenses = project.expenses.reduce((sum, expense) => sum + parseFloat(expense.actual || 0), 0);
           const totalBudgetExpenses = project.expenses.reduce((sum, expense) => sum + parseFloat(expense.budget || 0), 0);
