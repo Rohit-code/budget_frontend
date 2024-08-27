@@ -26,7 +26,7 @@ function formatDateFromDB(dateStr) {
   return `${day}/${month}/${year}`;
 }
 
-// Endpoint to get completed projects within a date range
+//* Endpoint to get completed projects within a date range
 app.get('/projects/completed', async (req, res) => {
   const { start_date, end_date } = req.query;
   try {
@@ -47,7 +47,7 @@ app.get('/projects/completed', async (req, res) => {
   }
 });
 
-// Endpoint to create a new project
+//* Endpoint to create a new project
 app.post('/projects', async (req, res) => {
   const { name, start_date, end_date, budget } = req.body;
   try {
@@ -62,7 +62,7 @@ app.post('/projects', async (req, res) => {
   }
 });
 
-// Endpoint to get all projects
+//* Endpoint to get all projects
 app.get('/projects', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM projects');
@@ -73,7 +73,7 @@ app.get('/projects', async (req, res) => {
   }
 });
 
-// Endpoint to save budget data
+//* Endpoint to save budget data
 app.post('/save-budget', async (req, res) => {
   const { projectId, budgetData } = req.body;
 
@@ -94,7 +94,7 @@ app.post('/save-budget', async (req, res) => {
   }
 });
 
-// Endpoint to delete a project
+//* Endpoint to delete a project
 app.delete('/projects/:id', async (req, res) => {
   const { id } = req.params;
   try {
@@ -107,7 +107,7 @@ app.delete('/projects/:id', async (req, res) => {
   }
 });
 
-// Endpoint to get a single project
+//* Endpoint to get a single project
 app.get('/projects/:id', async (req, res) => {
   const { id } = req.params;
   try {
@@ -122,7 +122,7 @@ app.get('/projects/:id', async (req, res) => {
   }
 });
 
-// Endpoint to save expenses for a project
+//* Endpoint to save expenses for a project
 app.post('/projects/:id/expenses', async (req, res) => {
   const { id } = req.params;
   const { newBudget, newActual } = req.body;
@@ -148,8 +148,7 @@ app.post('/projects/:id/expenses', async (req, res) => {
   }
 });
 
-
-// Endpoint to get expenses for a project
+//* Endpoint to get expenses for a project
 app.get('/projects/:id/expenses', async (req, res) => {
   const { id } = req.params;
 
