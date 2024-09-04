@@ -285,27 +285,26 @@ app.put('/projects/:id', async (req, res) => {
 
 app.get('/financial-years', async (req, res) => {
   const query = `
-      WITH fiscal_years AS (
-          SELECT DISTINCT
-              CASE
-                  WHEN EXTRACT(MONTH FROM start_date) >= 4 THEN EXTRACT(YEAR FROM start_date)
-                  ELSE EXTRACT(YEAR FROM start_date) - 1
-              END AS financial_year
-          FROM projects
-          UNION
-          SELECT DISTINCT
-              CASE
-                  WHEN EXTRACT(MONTH FROM end_date) >= 4 THEN EXTRACT(YEAR FROM end_date)
-                  ELSE EXTRACT(YEAR FROM end_date) - 1
-              END AS financial_year
-          FROM projects
-      )
-      SELECT 
-          financial_year
-      FROM 
-          fiscal_years
-      ORDER BY 
-          financial_year;
+      WITH RECURSIVE fiscal_years AS (
+    SELECT DISTINCT
+        CASE
+            WHEN EXTRACT(MONTH FROM start_date) >= 4 THEN EXTRACT(YEAR FROM start_date)
+            ELSE EXTRACT(YEAR FROM start_date) - 1
+        END AS financial_year,
+        CASE
+            WHEN EXTRACT(MONTH FROM end_date) >= 4 THEN EXTRACT(YEAR FROM end_date)
+            ELSE EXTRACT(YEAR FROM end_date) - 1
+        END AS end_year
+    FROM projects
+    UNION ALL
+    SELECT financial_year + 1, end_year
+    FROM fiscal_years
+    WHERE financial_year < end_year
+)
+SELECT DISTINCT financial_year
+FROM fiscal_years
+ORDER BY financial_year;
+
   `;
 
   try {
@@ -562,7 +561,7 @@ app.get('/invoices', async (req, res) => {
   }
 });
 
-const ipAddress = '192.168.1.120'; // Replace with your desired IP address
+const ipAddress = '192.168.1.120'; 
 const port = 5000;
 
 

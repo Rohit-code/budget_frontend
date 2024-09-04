@@ -42,10 +42,17 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
         const budgetData = {};
         const actualData = {};
 
+        months.forEach(month => {
+          budgetData[month] = {};
+          actualData[month] = {};
+          categories.forEach(category => {
+            budgetData[month][category] = 0;  // Initialize with default value
+            actualData[month][category] = 0;  // Initialize with default value
+          });
+        });
+
         expensesResponse.data.forEach(expense => {
           const { month, category, budget, actual } = expense;
-          if (!budgetData[month]) budgetData[month] = {};
-          if (!actualData[month]) actualData[month] = {};
           budgetData[month][category] = parseFloat(budget) || 0;
           actualData[month][category] = parseFloat(actual) || 0;
         });
