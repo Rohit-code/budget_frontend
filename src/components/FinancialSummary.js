@@ -13,7 +13,7 @@ const FinancialSummary = ({ fiscalYear }) => {
     const fetchProjects = async () => {
       if (fiscalYear) {
         try {
-          const response = await axios.get(`http://localhost:5000/projects/financial-year/${fiscalYear}`);
+          const response = await axios.get(`http://192.168.1.120:5000/projects/financial-year/${fiscalYear}`);
           const projects = response.data;
           setProjects(projects);
 

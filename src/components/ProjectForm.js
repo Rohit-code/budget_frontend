@@ -25,7 +25,7 @@ function ProjectForm({ onProjectAdded }) {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:5000/projects', {
+      const response = await axios.post('http://192.168.1.120:5000/projects', {
         name,
         start_date: startDate,
         end_date: endDate,

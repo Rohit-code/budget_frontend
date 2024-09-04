@@ -16,7 +16,7 @@ const Register = () => {
       return;
     }
     try {
-      await axios.post('http://localhost:5000/register', { name, dept, emailid, password });
+      await axios.post('http://192.168.1.120:5000/register', { name, dept, emailid, password });
       navigate('/login');
     } catch (error) {
       console.error('Error registering:', error);

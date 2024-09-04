@@ -12,7 +12,7 @@ const InvoicePage = ({ projectId }) => {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/projects/${projectId || urlProjectId}`);
+        const response = await axios.get(`http://192.168.1.120:5000/projects/${projectId || urlProjectId}`);
         setProject(response.data);
       } catch (error) {
         console.error('Error fetching project:', error);
@@ -21,7 +21,7 @@ const InvoicePage = ({ projectId }) => {
 
     const fetchInvoices = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/invoices?projectId=${projectId || urlProjectId}`);
+        const response = await axios.get(`http://192.168.1.120:5000/invoices?projectId=${projectId || urlProjectId}`);
         setInvoices(response.data);
       } catch (error) {
         console.error('Error fetching invoices:', error);

@@ -9,7 +9,7 @@ function SummaryPage() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/projects');
+        const response = await axios.get('http://192.168.1.120:5000/projects');
         setProjects(response.data);
       } catch (error) {
         console.error('Error fetching projects:', error);
@@ -31,8 +31,8 @@ function SummaryPage() {
     const fetchSummaryData = async () => {
       try {
         const summaries = await Promise.all(projects.map(async (project) => {
-          const responseSummary = await axios.get(`http://localhost:5000/projects/${project.id}/summary`);
-          const responseProject = await axios.get(`http://localhost:5000/projects/${project.id}`);
+          const responseSummary = await axios.get(`http://192.168.1.120:5000/projects/${project.id}/summary`);
+          const responseProject = await axios.get(`http://192.168.1.120:5000/projects/${project.id}`);
           
           return {
             projectId: project.id,
