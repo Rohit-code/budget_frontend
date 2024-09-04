@@ -66,7 +66,6 @@ function SummaryPage() {
             <th>Total Budget</th>
             <th>Total Actual</th>
             <th>Remaining Actual</th>
-            <th>Consumed Budget</th>
           </tr>
         </thead>
         <tbody>
@@ -78,7 +77,6 @@ function SummaryPage() {
               <td>{summary.summary.totalBudget}</td>
               <td>{summary.summary.consumedActual}</td>
               <td>{summary.summary.remainingActual}</td>
-              <td>{summary.summary.consumedBudget}</td>
             </tr>
           ))}
         </tbody>

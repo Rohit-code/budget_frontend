@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import '../styles/DynamicTable.css';
 
 const categories = [
-  'Travel Desk', 'Accommodation', 'Site Travel', 'Food', 
-  'DP Vendor', 'DC Vendor', 'Flying Vendor', 'Consultant', 
+  'Travel Desk', 'Accommodation', 'Site Travel', 'Food',
+  'DP Vendor', 'DC Vendor', 'Flying Vendor', 'Consultant',
   'Special', 'Miscellaneous'
 ];
 
@@ -12,9 +11,9 @@ const generateMonthsArray = (start, end) => {
   const months = [];
   const startDate = new Date(start);
   const endDate = new Date(end);
-  
+
   let currentDate = startDate;
-  
+
   while (currentDate <= endDate) {
     const monthYear = currentDate.toLocaleString('default', { month: 'short', year: 'numeric' });
     months.push(monthYear);
@@ -28,9 +27,9 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
   const [expenses, setExpenses] = useState([]);
   const [newBudget, setNewBudget] = useState({});
   const [newActual, setNewActual] = useState({});
+  const [invoiceBudget, setInvoiceBudget] = useState({});
   const [months, setMonths] = useState(generateMonthsArray(projectStartDate, projectEndDate));
   const [isEditable, setIsEditable] = useState(false);
-  const [error, setError] = useState('');
   const [projectBudget, setProjectBudget] = useState(0);
 
   useEffect(() => {
@@ -38,10 +37,8 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
       try {
         const projectResponse = await axios.get(`http://localhost:5000/projects/${projectId}`);
         setProjectBudget(projectResponse.data.budget);
-        
-        const expensesResponse = await axios.get(`http://localhost:5000/projects/${projectId}/expenses`);
-        console.log('Fetched expenses response:', expensesResponse.data);
 
+        const expensesResponse = await axios.get(`http://localhost:5000/projects/${projectId}/expenses`);
         const budgetData = {};
         const actualData = {};
 
@@ -53,17 +50,27 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
           actualData[month][category] = parseFloat(actual) || 0;
         });
 
-        console.log('Parsed budget data:', budgetData);
-        console.log('Parsed actual data:', actualData);
         setNewBudget(budgetData);
         setNewActual(actualData);
+        setExpenses(expensesResponse.data);
+
+        const invoiceResponse = await axios.get(`http://localhost:5000/projects/${projectId}/invoices`);
+        const combinedInvoiceBudget = invoiceResponse.data.reduce((acc, invoice) => {
+          Object.keys(invoice.invoice_budget).forEach(month => {
+            if (!acc[month]) acc[month] = 0;
+            acc[month] += parseFloat(invoice.invoice_budget[month]) || 0;
+          });
+          return acc;
+        }, {});
+        setInvoiceBudget(combinedInvoiceBudget);
+        setMonths(generateMonthsArray(projectStartDate, projectEndDate));
       } catch (error) {
         console.error('Error fetching project data:', error);
       }
     };
 
     fetchProjectData();
-  }, [projectId]);
+  }, [projectId, projectStartDate, projectEndDate]);
 
   const handleBudgetChange = (month, category, value) => {
     setNewBudget(prev => ({
@@ -85,48 +92,35 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
     }));
   };
 
-  const handleAddMonth = () => {
-    const lastMonth = months[months.length - 1];
-    const lastDate = new Date(lastMonth.split(' ').reverse().join('-'));
-    lastDate.setMonth(lastDate.getMonth() + 1);
-    const newMonth = lastDate.toLocaleString('default', { month: 'short', year: 'numeric' });
-
-    if (lastDate <= new Date(projectEndDate)) {
-      setMonths(prev => [...prev, newMonth]);
-    } else {
-      alert('Cannot add month beyond the project end date');
-    }
-  };
-
   const handleSave = async () => {
-    // Calculate total actual expenses
-    let totalActualExpenses = 0;
-
-    months.forEach(month => {
-      categories.forEach(category => {
-        totalActualExpenses += newActual[month]?.[category] || 0;
-      });
-    });
+    let totalActualExpenses = Object.values(newActual).reduce((monthAcc, month) => {
+      return monthAcc + Object.values(month).reduce((catAcc, value) => catAcc + value, 0);
+    }, 0);
 
     if (totalActualExpenses > projectBudget) {
       const proceed = window.confirm(`The total actual expenses exceed the project budget of ${projectBudget}. Do you still want to save the expenses?`);
-      if (!proceed) {
-        return;
-      }
+      if (!proceed) return;
     }
 
-    // If validation passes, clear the error and proceed with saving
-    setError('');
-    const data = { newBudget, newActual };
+    const data = { newBudget, newActual, invoiceBudget };
 
     try {
       await axios.post(`http://localhost:5000/projects/${projectId}/expenses`, data);
       alert('Expenses saved successfully!');
-      // Optionally, you can update state or perform other actions after successful save
+      setIsEditable(false);
     } catch (error) {
       console.error('Error saving expenses:', error);
       alert('Error saving expenses.');
     }
+  };
+
+  const calculateSum = (data, type) => {
+    return months.reduce((sum, month) => {
+      return sum + categories.reduce((catSum, category) => {
+        const value = data[month]?.[category] || 0;
+        return catSum + value;
+      }, 0);
+    }, 0);
   };
 
   const calculateCashOutflow = (month, type) => {
@@ -140,7 +134,6 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
   return (
     <div>
       <h2>Expenses for the Project</h2>
-      {error && <p className="error">{error}</p>}
       <table>
         <thead>
           <tr>
@@ -157,9 +150,15 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
               </React.Fragment>
             ))}
           </tr>
-        </thead>
-        <tbody>
-          <tr>
+          <tr style={{ backgroundColor: '#e0f7fa', fontWeight: 'bold' }}>
+            <td>Invoice Plan</td>
+            {months.map(month => (
+              <td key={month} colSpan="2">
+                {invoiceBudget[month] || 0}
+              </td>
+            ))}
+          </tr>
+          <tr style={{ backgroundColor: '#e0f7fa', fontWeight: 'bold' }}>
             <td>Cash Outflow</td>
             {months.map(month => (
               <React.Fragment key={month}>
@@ -168,6 +167,8 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
               </React.Fragment>
             ))}
           </tr>
+        </thead>
+        <tbody>
           {categories.map(category => (
             <tr key={category}>
               <td>{category}</td>
@@ -181,7 +182,7 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
                         onChange={e => handleBudgetChange(month, category, e.target.value)}
                       />
                     ) : (
-                      <span>{newBudget[month]?.[category] || expenses.find(e => e.category === category && e.month === month)?.budget || 0}</span>
+                      <span>{newBudget[month]?.[category] || 0}</span>
                     )}
                   </td>
                   <td>
@@ -192,7 +193,7 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
                         onChange={e => handleActualChange(month, category, e.target.value)}
                       />
                     ) : (
-                      <span>{newActual[month]?.[category] || expenses.find(e => e.category === category && e.month === month)?.actual || 0}</span>
+                      <span>{newActual[month]?.[category] || 0}</span>
                     )}
                   </td>
                 </React.Fragment>
@@ -201,8 +202,8 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
           ))}
         </tbody>
       </table>
-      <button onClick={handleSave}>Save</button>
-      <button onClick={() => setIsEditable(!isEditable)}>{isEditable ? 'Done' : 'Edit'}</button>
+      <button onClick={handleSave} disabled={!isEditable}>Save</button>
+      <button onClick={() => setIsEditable(!isEditable)}>{isEditable ? 'Cancel' : 'Edit'}</button>
     </div>
   );
 };

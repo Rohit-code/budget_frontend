@@ -147,13 +147,13 @@ app.get('/projects/:id/summary', async (req, res) => {
     const expensesResult = await pool.query('SELECT * FROM expenses WHERE project_id = $1', [id]);
     const expenses = expensesResult.rows;
 
-    const totalBudget = parseFloat(project.budget);
+    const totalBudget = parseFloat(project.order_value);
     let consumedBudget = 0;
     let consumedActual = 0;
 
     expenses.forEach(expense => {
       if (expense.category !== 'Cash Outflow') {
-        consumedBudget += parseFloat(expense.budget || 0);
+        consumedBudget += parseFloat(expense.order_value || 0);
         consumedActual += parseFloat(expense.actual || 0);
       }
     });
@@ -185,7 +185,7 @@ app.get('/project-summary', async (req, res) => {
         const expensesResult = await pool.query('SELECT * FROM expenses WHERE project_id = $1', [project.id]);
         const expenses = expensesResult.rows;
 
-        const totalBudget = parseFloat(project.budget);
+        const totalBudget = parseFloat(project.order_value);
         let consumedBudget = 0;
         let consumedActual = 0;
 
@@ -205,7 +205,6 @@ app.get('/project-summary', async (req, res) => {
           start_date: project.start_date,
           end_date: project.end_date,
           totalBudget,
-          consumedBudget,
           remainingBudget,
           consumedActual,
           remainingActual
@@ -561,6 +560,7 @@ app.get('/invoices', async (req, res) => {
   }
 });
 
+
 const ipAddress = '192.168.1.120'; 
 const port = 5000;
 
@@ -569,3 +569,4 @@ const port = 5000;
 app.listen(port, ipAddress, () => {
   console.log(`Server running at http://${ipAddress}:${port}/`);
 });
+
