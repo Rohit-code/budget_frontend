@@ -92,7 +92,7 @@ function App() {
           <Route path="/summary" element={<SummaryPage />} />
           <Route path="/project/:projectId" element={<ProjectDetailPage onDeleteProject={handleDeleteProject} />} />
           <Route path="/financial-year-summary/:year" element={<FinancialYearSummary selectedYear={selectedYear} />} />
-          <Route path="/invoice/:projectId" element={<InvoicePage projectId={selectedInvoiceProject} />} /> 
+          <Route path="/invoice/:projectId" element={<InvoicePage projectId={selectedInvoiceProject} />} />
         </Routes>
       </div>
     </Router>
