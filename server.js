@@ -3,9 +3,11 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const moment = require('moment');
 const { Pool } = require('pg');
+const logger = require('./logger'); 
+
 
 const app = express();
-const port = 5000;
+
 
 const pool = new Pool({
   user: 'postgres',
@@ -282,27 +284,26 @@ app.put('/projects/:id', async (req, res) => {
 
 app.get('/financial-years', async (req, res) => {
   const query = `
-      WITH fiscal_years AS (
-          SELECT DISTINCT
-              CASE
-                  WHEN EXTRACT(MONTH FROM start_date) >= 4 THEN EXTRACT(YEAR FROM start_date)
-                  ELSE EXTRACT(YEAR FROM start_date) - 1
-              END AS financial_year
-          FROM projects
-          UNION
-          SELECT DISTINCT
-              CASE
-                  WHEN EXTRACT(MONTH FROM end_date) >= 4 THEN EXTRACT(YEAR FROM end_date)
-                  ELSE EXTRACT(YEAR FROM end_date) - 1
-              END AS financial_year
-          FROM projects
-      )
-      SELECT 
-          financial_year
-      FROM 
-          fiscal_years
-      ORDER BY 
-          financial_year;
+      WITH RECURSIVE fiscal_years AS (
+    SELECT DISTINCT
+        CASE
+            WHEN EXTRACT(MONTH FROM start_date) >= 4 THEN EXTRACT(YEAR FROM start_date)
+            ELSE EXTRACT(YEAR FROM start_date) - 1
+        END AS financial_year,
+        CASE
+            WHEN EXTRACT(MONTH FROM end_date) >= 4 THEN EXTRACT(YEAR FROM end_date)
+            ELSE EXTRACT(YEAR FROM end_date) - 1
+        END AS end_year
+    FROM projects
+    UNION ALL
+    SELECT financial_year + 1, end_year
+    FROM fiscal_years
+    WHERE financial_year < end_year
+)
+SELECT DISTINCT financial_year
+FROM fiscal_years
+ORDER BY financial_year;
+
   `;
 
   try {
@@ -378,7 +379,13 @@ app.get('/projects/financial-year/:startYear', async (req, res) => {
           p.name,
           p.start_date,
           p.end_date,
-          p.budget
+          CASE
+            WHEN p.start_date >= (SELECT start_date FROM date_range) THEN p.budget
+            ELSE p.budget - COALESCE((SELECT SUM(e.actual) 
+                                      FROM expenses e
+                                      WHERE e.project_id = p.id
+                                      AND TO_DATE(e.month, 'Mon YYYY') < (SELECT start_date FROM date_range)), 0)
+          END AS budget
         FROM projects p
         WHERE p.start_date <= (SELECT end_date FROM date_range)
           AND p.end_date >= (SELECT start_date FROM date_range)
@@ -554,6 +561,12 @@ app.get('/invoices', async (req, res) => {
 });
 
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+const ipAddress = '192.168.1.120'; 
+const port = 5000;
+
+
+
+app.listen(port, ipAddress, () => {
+  console.log(`Server running at http://${ipAddress}:${port}/`);
 });
+
