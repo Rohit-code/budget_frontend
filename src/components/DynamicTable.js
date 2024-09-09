@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import * as XLSX from 'xlsx';
 
 const categories = [
   'Travel Desk', 'Accommodation', 'Site Travel', 'Food',
@@ -138,6 +139,34 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
     }, 0);
   };
 
+  const exportToExcel = () => {
+    // Create the header and rows for the Excel file
+    const dataToExport = [
+      ['Category', ...months.flatMap(month => [`${month} Budget`, `${month} Actual`])],
+      ['Invoice Plan', ...months.flatMap(month => [invoiceBudget[month] || 0, ''])],
+      ['Cash Outflow', ...months.flatMap(month => [calculateCashOutflow(month, 'budget'), calculateCashOutflow(month, 'actual')])]
+    ];
+
+    categories.forEach(category => {
+      const row = [category];
+      months.forEach(month => {
+        row.push(newBudget[month]?.[category] || 0);
+        row.push(newActual[month]?.[category] || 0);
+      });
+      dataToExport.push(row);
+    });
+
+    // Convert the data to a worksheet
+    const ws = XLSX.utils.aoa_to_sheet(dataToExport);
+
+    // Create a new workbook and append the worksheet
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Expenses');
+
+    // Save the workbook to file
+    XLSX.writeFile(wb, 'Expenses.xlsx');
+  };
+
   return (
     <div>
       <h2>Expenses for the Project</h2>
@@ -211,6 +240,7 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
       </table>
       <button onClick={handleSave} disabled={!isEditable}>Save</button>
       <button onClick={() => setIsEditable(!isEditable)}>{isEditable ? 'Cancel' : 'Edit'}</button>
+      <button onClick={exportToExcel}>Download as Excel</button>
     </div>
   );
 };
