@@ -29,9 +29,24 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
   const [newBudget, setNewBudget] = useState({});
   const [newActual, setNewActual] = useState({});
   const [invoiceBudget, setInvoiceBudget] = useState({});
+  const [invoiceActual, setInvoiceActual] = useState({});
   const [months, setMonths] = useState(generateMonthsArray(projectStartDate, projectEndDate));
   const [isEditable, setIsEditable] = useState(false);
   const [projectBudget, setProjectBudget] = useState(0);
+
+  // Recalculate months and reset states when projectId, projectStartDate, or projectEndDate change
+  useEffect(() => {
+    const newMonths = generateMonthsArray(projectStartDate, projectEndDate);
+    setMonths(newMonths);
+
+    // Reset budget, actuals, and other state variables when project changes
+    setNewBudget({});
+    setNewActual({});
+    setInvoiceBudget({});
+    setInvoiceActual({});
+    setExpenses([]);
+    setProjectBudget(0);
+  }, [projectId, projectStartDate, projectEndDate]);
 
   useEffect(() => {
     const fetchProjectData = async () => {
@@ -54,9 +69,20 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
 
         expensesResponse.data.forEach(expense => {
           const { month, category, budget, actual } = expense;
+        
+          // Check if month exists in budgetData and actualData, initialize if not
+          if (!budgetData[month]) {
+            budgetData[month] = {};
+          }
+          if (!actualData[month]) {
+            actualData[month] = {};
+          }
+        
+          // Now it's safe to set the category values
           budgetData[month][category] = parseFloat(budget) || 0;
           actualData[month][category] = parseFloat(actual) || 0;
         });
+        
 
         setNewBudget(budgetData);
         setNewActual(actualData);
@@ -70,15 +96,24 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
           });
           return acc;
         }, {});
+
+        const combinedInvoiceActual = invoiceResponse.data.reduce((acc, invoice) => {
+          Object.keys(invoice.invoice_actual).forEach(month => {
+            if (!acc[month]) acc[month] = 0;
+            acc[month] += parseFloat(invoice.invoice_actual[month]) || 0;
+          });
+          return acc;
+        }, {});
+
         setInvoiceBudget(combinedInvoiceBudget);
-        setMonths(generateMonthsArray(projectStartDate, projectEndDate));
+        setInvoiceActual(combinedInvoiceActual);
       } catch (error) {
         console.error('Error fetching project data:', error);
       }
     };
 
     fetchProjectData();
-  }, [projectId, projectStartDate, projectEndDate]);
+  }, [projectId, months]); // Add 'months' as a dependency to ensure data is fetched when months change
 
   const handleBudgetChange = (month, category, value) => {
     setNewBudget(prev => ({
@@ -122,13 +157,21 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
     }
   };
 
-  const calculateSum = (data, type) => {
-    return months.reduce((sum, month) => {
-      return sum + categories.reduce((catSum, category) => {
-        const value = data[month]?.[category] || 0;
-        return catSum + value;
-      }, 0);
-    }, 0);
+  const handleDeleteProject = async () => {
+    const firstConfirmation = window.confirm('Are you sure you want to delete this project? This action cannot be undone.');
+    if (!firstConfirmation) return;
+
+    const secondConfirmation = window.confirm('This is your last chance! Do you really want to delete this project?');
+    if (!secondConfirmation) return;
+
+    try {
+      await axios.delete(`http://192.168.1.120:5000/projects/${projectId}`);
+      alert('Project deleted successfully!');
+      // You might want to redirect the user or reset the component state here
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      alert('Error deleting project.');
+    }
   };
 
   const calculateCashOutflow = (month, type) => {
@@ -143,7 +186,7 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
     // Create the header and rows for the Excel file
     const dataToExport = [
       ['Category', ...months.flatMap(month => [`${month} Budget`, `${month} Actual`])],
-      ['Invoice Plan', ...months.flatMap(month => [invoiceBudget[month] || 0, ''])],
+      ['Invoice Plan', ...months.flatMap(month => [invoiceBudget[month] || 0, invoiceActual[month] || 0])],
       ['Cash Outflow', ...months.flatMap(month => [calculateCashOutflow(month, 'budget'), calculateCashOutflow(month, 'actual')])]
     ];
 
@@ -186,15 +229,16 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
               </React.Fragment>
             ))}
           </tr>
-          <tr style={{ backgroundColor: '#e0f7fa', fontWeight: 'bold' }}>
+          <tr style={{ backgroundColor: '#e0f7fa' }}>
             <td>Invoice Plan</td>
             {months.map(month => (
-              <td key={month} colSpan="2">
-                {invoiceBudget[month] || 0}
-              </td>
+              <React.Fragment key={month}>
+                <td>{invoiceBudget[month] || 0}</td>
+                <td>{invoiceActual[month] || 0}</td>
+              </React.Fragment>
             ))}
           </tr>
-          <tr style={{ backgroundColor: '#e0f7fa', fontWeight: 'bold' }}>
+          <tr style={{ backgroundColor: '#e0f7fa' }}>
             <td>Cash Outflow</td>
             {months.map(month => (
               <React.Fragment key={month}>
@@ -209,16 +253,16 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
             <tr key={category}>
               <td>{category}</td>
               {months.map(month => (
-                <React.Fragment key={month}>
+                <React.Fragment key={`${category}-${month}`}>
                   <td>
                     {isEditable ? (
                       <input
                         type="number"
                         value={newBudget[month]?.[category] || 0}
-                        onChange={e => handleBudgetChange(month, category, e.target.value)}
+                        onChange={(e) => handleBudgetChange(month, category, e.target.value)}
                       />
                     ) : (
-                      <span>{newBudget[month]?.[category] || 0}</span>
+                      newBudget[month]?.[category] || 0
                     )}
                   </td>
                   <td>
@@ -226,10 +270,10 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
                       <input
                         type="number"
                         value={newActual[month]?.[category] || 0}
-                        onChange={e => handleActualChange(month, category, e.target.value)}
+                        onChange={(e) => handleActualChange(month, category, e.target.value)}
                       />
                     ) : (
-                      <span>{newActual[month]?.[category] || 0}</span>
+                      newActual[month]?.[category] || 0
                     )}
                   </td>
                 </React.Fragment>
@@ -238,9 +282,12 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate }) => {
           ))}
         </tbody>
       </table>
-      <button onClick={handleSave} disabled={!isEditable}>Save</button>
-      <button onClick={() => setIsEditable(!isEditable)}>{isEditable ? 'Cancel' : 'Edit'}</button>
-      <button onClick={exportToExcel}>Download as Excel</button>
+      <button onClick={() => setIsEditable(!isEditable)}>
+        {isEditable ? 'Cancel' : 'Edit'}
+      </button>
+      {isEditable && <button onClick={handleSave}>Save</button>}
+      <button onClick={exportToExcel}>Export to Excel</button>
+      <button onClick={handleDeleteProject} style={{ backgroundColor: 'red', color: 'white' }}>Delete Project</button>
     </div>
   );
 };
