@@ -1,3 +1,5 @@
+const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -7,7 +9,29 @@ const logger = require('./logger');
 
 
 const app = express();
+const jwt = require('jsonwebtoken');
+const secretKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MzA1Njc0ODV9.Toi7KA6NCkqaHZAh265EB8_LRZYi_y9wHQszxmftcA0';
 
+// Middleware to verify JWT and check role
+function authorizeRoles(...allowedRoles) {
+  return (req, res, next) => {
+    const token = req.headers['authorization'];
+    if (!token) return res.status(403).send({ error: 'Access denied. No token provided.' });
+
+    try {
+      const decoded = jwt.verify(token.split(' ')[1], secretKey);
+      req.user = decoded;
+
+      if (allowedRoles.length && !allowedRoles.includes(req.user.role)) {
+        return res.status(403).send({ error: 'Access denied. Insufficient permissions.' });
+      }
+
+      next();
+    } catch (error) {
+      res.status(400).send({ error: 'Invalid token.' });
+    }
+  };
+}
 
 const pool = new Pool({
   user: 'postgres',
@@ -28,12 +52,16 @@ function formatDateFromDB(dateStr) {
   return `${day}/${month}/${year}`;
 }
 
+function hashPassword(password) {
+  return crypto.createHash('sha256').update(password).digest('hex');
+}
+
 // Endpoint to create a new project
 app.post('/projects', async (req, res) => {
   const { name, start_date, end_date, budget, order_value } = req.body;
   try {
     const result = await pool.query(
-      'INSERT INTO projects (name, start_date, end_date, order_value ,budget ) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      'INSERT INTO projects (name, start_date, end_date, budget, order_value ) VALUES ($1, $2, $3, $4, $5) RETURNING *',
       [name, start_date, end_date, budget, order_value || null] // Set default if order_value is not provided
     );
     res.send(result.rows[0]);
@@ -561,7 +589,158 @@ app.get('/invoices', async (req, res) => {
   }
 });
 
-const ipAddress = '192.168.1.120'; 
+// Endpoint to register a new user (restricted to admin for role assignment)
+app.post('/register', authorizeRoles('admin'), async (req, res) => {
+  const { name, dept, emailid, password, role } = req.body;
+  if (!name || !dept || !emailid || !password || !role) {
+    return res.status(400).send({ error: 'All fields are required.' });
+  }
+
+  try {
+    const hashedPassword = hashPassword(password); // Hash password using SHA-256
+    const result = await pool.query(
+      'INSERT INTO users (name, dept, emailid, password, role) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [name, dept, emailid, hashedPassword, role]
+    );
+    res.status(201).send(result.rows[0]);
+  } catch (error) {
+    console.error('Error registering user:', error);
+    res.status(500).send({ error: 'Error registering user' });
+  }
+});
+
+// Login route
+app.post('/login', async (req, res) => {
+  const { emailid, password } = req.body;
+  try {
+    const userResult = await pool.query('SELECT * FROM users WHERE emailid = $1', [emailid]);
+    const user = userResult.rows[0];
+    if (!user || hashPassword(password) !== user.password) {
+      return res.status(400).send({ error: 'Invalid email or password' });
+    }
+
+    const token = jwt.sign({ id: user.id, role: user.role }, secretKey, { expiresIn: '1h' });
+    res.send({ token, role: user.role });
+  } catch (error) {
+    console.error('Error logging in:', error);
+    res.status(500).send({ error: 'Error logging in' });
+  }
+});
+
+// Endpoint to fetch all users (restricted to admin and PMO)
+app.get('/users', authorizeRoles('admin', 'PMO'), async (req, res) => {
+  try {
+    const result = await pool.query('SELECT id, name, dept, emailid, role FROM users');
+    res.send(result.rows);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).send({ error: 'Server error' });
+  }
+});
+
+// Endpoint to update a user's role (restricted to admin)
+app.put('/users/:id/role', authorizeRoles('admin'), async (req, res) => {
+  const { id } = req.params;
+  const { role } = req.body;
+
+  if (!role) {
+    return res.status(400).send({ error: 'Role is required.' });
+  }
+
+  try {
+    const result = await pool.query(
+      'UPDATE users SET role = $1 WHERE id = $2 RETURNING id, name, dept, emailid, role',
+      [role, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).send({ error: 'User not found.' });
+    }
+
+    res.status(200).send({ message: 'Role updated successfully', user: result.rows[0] });
+  } catch (error) {
+    console.error('Error updating role:', error);
+    res.status(500).send({ error: 'Error updating role' });
+  }
+});
+
+// Endpoint to handle upload of expenses from file
+app.post('/projects/:projectId/upload-expenses', async (req, res) => {
+  const { projectId } = req.params;
+  const { expenses } = req.body;
+
+  try {
+    for (const expense of expenses) {
+      const { month, category, budget, actual } = expense;
+
+      // Check if the expense entry already exists
+      const existingExpense = await pool.query(
+        'SELECT * FROM expenses WHERE project_id = $1 AND month = $2 AND category = $3',
+        [projectId, month, category]
+      );
+
+      if (existingExpense.rows.length > 0) {
+        // Update the existing expense entry
+        await pool.query(
+          'UPDATE expenses SET budget = $1, actual = $2 WHERE project_id = $3 AND month = $4 AND category = $5',
+          [budget, actual, projectId, month, category]
+        );
+      } else {
+        // Insert new expense entry
+        await pool.query(
+          'INSERT INTO expenses (project_id, month, category, budget, actual) VALUES ($1, $2, $3, $4, $5)',
+          [projectId, month, category, budget, actual]
+        );
+      }
+    }
+
+    res.status(200).send('Expenses uploaded successfully');
+  } catch (error) {
+    console.error('Error uploading expenses:', error);
+    res.status(500).send('Failed to upload expenses');
+  }
+});
+
+// Endpoint to add a new user (restricted to admin for all roles, PMO for manager and PMO roles only)
+app.post('/add-user', authorizeRoles('admin', 'PMO'), async (req, res) => {
+  const { name, dept, emailid, password, role } = req.body;
+  const { role: requesterRole } = req.user;
+
+  if (!name || !dept || !emailid || !password || !role) {
+    return res.status(400).send({ error: 'All fields are required.' });
+  }
+
+  if ((requesterRole === 'PMO' && role !== 'manager' && role !== 'PMO') ||
+      (requesterRole === 'admin' && !['admin', 'PMO', 'manager', 'user'].includes(role))) {
+    return res.status(403).send({ error: 'You do not have permission to assign this role.' });
+  }
+
+  try {
+    const hashedPassword = hashPassword(password);
+    const result = await pool.query(
+      'INSERT INTO users (name, dept, emailid, password, role) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [name, dept, emailid, hashedPassword, role]
+    );
+    res.status(201).send(result.rows[0]);
+  } catch (error) {
+    console.error('Error adding user:', error);
+    res.status(500).send({ error: 'Error adding user' });
+  }
+});
+
+// Endpoint to delete a user by ID (restricted to admin and PMO)
+app.delete('/users/:id', authorizeRoles('admin', 'PMO'), async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query('DELETE FROM users WHERE id = $1', [id]);
+    res.send({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).send({ error: 'Server error' });
+  }
+});
+
+const ipAddress = '192.168.1.3'; 
 const port = 5000;
 
 
