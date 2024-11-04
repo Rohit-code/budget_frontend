@@ -12,7 +12,7 @@ function ProjectDetailPage({ onDeleteProject }) {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await axios.get(`http://192.168.1.3:5000/projects/${projectId}`);
+        const response = await axios.get(`http://192.168.1.120:5000/projects/${projectId}`);
         setProject(response.data);
       } catch (error) {
         setError(error.response ? error.response.data.error : 'Error fetching project');
@@ -24,11 +24,6 @@ function ProjectDetailPage({ onDeleteProject }) {
     }
   }, [projectId]);
 
-  const handleDelete = async () => {
-    await onDeleteProject(projectId);
-    navigate('/summary');
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center py-8 px-4">
       {error ? (
@@ -36,7 +31,7 @@ function ProjectDetailPage({ onDeleteProject }) {
           {error}
         </div>
       ) : project ? (
-        <div className="w-full max-w-7xl bg-white shadow-2xl rounded-lg p-8 md:p-12 h-full flex flex-col">
+        <div className="w-full max-w-[90%] bg-white shadow-2xl rounded-lg p-8 md:p-12 h-full flex flex-col">
           <h2 className="text-4xl font-extrabold text-indigo-700 text-center mb-8">
             {project.name}
           </h2>
@@ -57,8 +52,8 @@ function ProjectDetailPage({ onDeleteProject }) {
             </div>
           </div>
   
-          {/* Full-Width and Full-Height DynamicTable */}
-          <div className="flex-grow overflow-x-auto overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg mb-8">
+          {/* Wider DynamicTable Container */}
+          <div className="flex-grow w-full overflow-x-auto overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg mb-8">
             <DynamicTable
               projectId={project.id}
               projectStartDate={project.start_date}
@@ -70,7 +65,7 @@ function ProjectDetailPage({ onDeleteProject }) {
         <p className="text-gray-500 text-lg">Loading project details...</p>
       )}
     </div>
-  );  
+  );
 }
 
 export default ProjectDetailPage;

@@ -3,6 +3,7 @@ import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../components/AuthContext';
+import PageWrapper from './PageWrapper';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -20,7 +21,6 @@ const Register = () => {
       return;
     }
     try {
-      // Only allow the 'admin' role to set custom roles; otherwise, default to 'user'
       const requestData = {
         name,
         dept,
@@ -28,7 +28,7 @@ const Register = () => {
         password,
         role: userRole === 'admin' ? role : 'user', // Force 'user' role for non-admin users
       };
-      await axios.post('http://192.168.1.3:5000/register', requestData);
+      await axios.post('http://192.168.1.120:5000/register', requestData);
       navigate('/login');
     } catch (error) {
       console.error('Error registering:', error);
@@ -37,9 +37,9 @@ const Register = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Register</h2>
+    <PageWrapper title="Register">
+      <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+        <h2 className="text-3xl font-bold mb-6 text-center text-indigo-700">Register</h2>
         
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-semibold mb-2">Name</label>
@@ -48,8 +48,8 @@ const Register = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 placeholder-gray-400
-                       focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm text-gray-700 placeholder-gray-400
+                       focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition duration-200"
             placeholder="Enter your name"
           />
         </div>
@@ -61,8 +61,8 @@ const Register = () => {
             value={dept}
             onChange={(e) => setDept(e.target.value)}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 placeholder-gray-400
-                       focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm text-gray-700 placeholder-gray-400
+                       focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition duration-200"
             placeholder="Enter your department"
           />
         </div>
@@ -74,8 +74,8 @@ const Register = () => {
             value={emailid}
             onChange={(e) => setEmailId(e.target.value)}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 placeholder-gray-400
-                       focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm text-gray-700 placeholder-gray-400
+                       focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition duration-200"
             placeholder="Enter your email"
           />
         </div>
@@ -87,8 +87,8 @@ const Register = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 placeholder-gray-400
-                       focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm text-gray-700 placeholder-gray-400
+                       focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition duration-200"
             placeholder="Enter your password"
           />
         </div>
@@ -99,8 +99,8 @@ const Register = () => {
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 bg-white
-                         focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm text-gray-700 bg-white
+                         focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition duration-200"
             >
               <option value="admin">Admin</option>
               <option value="PMO">PMO</option>
@@ -112,13 +112,13 @@ const Register = () => {
         
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 
-                     focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 transition duration-200"
+          className="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 
+                     focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-50 transition duration-200"
         >
           Register
         </button>
       </form>
-    </div>
+    </PageWrapper>
   );
 };
 

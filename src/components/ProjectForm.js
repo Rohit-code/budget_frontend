@@ -1,5 +1,5 @@
-// src/components/ProjectForm.js
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -9,27 +9,29 @@ function ProjectForm({ onProjectAdded }) {
   const [endDate, setEndDate] = useState('');
   const [budget, setBudget] = useState('');
   const [orderValue, setOrderValue] = useState('');
-  const [error, setError] = useState(''); // Added state for error message
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate form fields
     if (!name || !startDate || !endDate || !budget || !orderValue) {
       setError('All fields are required.');
       return;
     }
 
-    // Clear error message if all fields are filled
     setError('');
+    setSuccessMessage('');
 
     try {
-      const response = await axios.post('http://192.168.1.3:5000/projects', {
+      const response = await axios.post('http://192.168.1.120:5000/projects', {
         name,
         start_date: startDate,
         end_date: endDate,
         budget: parseFloat(budget),
-        order_value: parseFloat(orderValue)
+        order_value: parseFloat(orderValue),
       });
 
       onProjectAdded(response.data);
@@ -38,20 +40,35 @@ function ProjectForm({ onProjectAdded }) {
       setEndDate('');
       setBudget('');
       setOrderValue('');
+
+      setSuccessMessage('✔ Project added successfully!');
+      setTimeout(() => {
+        setSuccessMessage('');
+        navigate('/summary'); // Navigate to /summary after success
+      }, 3000); // Show message for 3 seconds before navigating
     } catch (error) {
       console.error('Error adding project:', error);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-lg mx-auto bg-white shadow-md rounded-lg p-8">
+      <h2 className="text-2xl font-bold text-teal-600 text-center mb-6">Add New Project</h2>
+      
+      {successMessage && (
+        <div className="bg-green-100 text-green-700 font-semibold p-3 rounded-lg text-center mb-4 shadow-sm">
+          {successMessage}
+        </div>
+      )}
+
       <div>
         <label className="block text-gray-700 font-semibold mb-2">Project Name:</label>
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+          className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+          placeholder="Enter project name"
         />
       </div>
       <div>
@@ -60,7 +77,7 @@ function ProjectForm({ onProjectAdded }) {
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+          className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
         />
       </div>
       <div>
@@ -69,7 +86,7 @@ function ProjectForm({ onProjectAdded }) {
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
-          className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+          className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
         />
       </div>
       <div>
@@ -78,7 +95,8 @@ function ProjectForm({ onProjectAdded }) {
           type="number"
           value={budget}
           onChange={(e) => setBudget(e.target.value)}
-          className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+          className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+          placeholder="Enter budget amount"
         />
       </div>
       <div>
@@ -87,13 +105,16 @@ function ProjectForm({ onProjectAdded }) {
           type="number"
           value={orderValue}
           onChange={(e) => setOrderValue(e.target.value)}
-          className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+          className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+          placeholder="Enter order value"
         />
       </div>
-      {error && <div className="text-red-500 font-semibold">{error}</div>}
+
+      {error && <div className="text-red-500 font-semibold text-center mt-4">{error}</div>}
+      
       <button
         type="submit"
-        className="w-full bg-teal-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400"
+        className="w-full py-3 mt-4 text-white font-semibold rounded-lg bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-400"
       >
         Add Project
       </button>

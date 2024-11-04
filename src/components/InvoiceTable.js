@@ -18,7 +18,7 @@ const generateMonthsArray = (start, end) => {
 };
 
 const InvoiceTable = ({ projectId, projectStartDate, projectEndDate, onInvoiceBudgetSave }) => {
-  const { userRole } = useContext(AuthContext); // Get the user role from context
+  const { userRole } = useContext(AuthContext);
   const [localInvoiceBudget, setLocalInvoiceBudget] = useState({});
   const [invoiceActual, setInvoiceActual] = useState({});
   const [months, setMonths] = useState(generateMonthsArray(projectStartDate, projectEndDate));
@@ -31,13 +31,13 @@ const InvoiceTable = ({ projectId, projectStartDate, projectEndDate, onInvoiceBu
   useEffect(() => {
     const fetchProjectData = async () => {
       try {
-        const projectResponse = await axios.get(`http://192.168.1.3:5000/projects/${projectId}`);
+        const projectResponse = await axios.get(`http://192.168.1.120:5000/projects/${projectId}`);
         const projectData = projectResponse.data;
         setInitialOrderValue(parseFloat(projectData.order_value) || 0);
         const initialBudget = parseFloat(projectData.budget) || 0;
         setTotalBudget(initialBudget);
 
-        const invoiceResponse = await axios.get(`http://192.168.1.3:5000/projects/${projectId}/invoices`);
+        const invoiceResponse = await axios.get(`http://192.168.1.120:5000/projects/${projectId}/invoices`);
         const invoiceData = invoiceResponse.data[0] || {};
 
         setOriginalInvoiceBudget(invoiceData.invoice_budget || {});
@@ -81,7 +81,7 @@ const InvoiceTable = ({ projectId, projectStartDate, projectEndDate, onInvoiceBu
 
   const handleSave = async () => {
     try {
-      await axios.post(`http://192.168.1.3:5000/projects/${projectId}/invoices`, {
+      await axios.post(`http://192.168.1.120:5000/projects/${projectId}/invoices`, {
         invoiceBudget: localInvoiceBudget,
         invoiceActual,
       });
@@ -101,66 +101,66 @@ const InvoiceTable = ({ projectId, projectStartDate, projectEndDate, onInvoiceBu
   };
 
   return (
-    <div className="p-6 bg-white shadow-md rounded-lg max-w-3xl mx-auto">
-      <div className="flex justify-between items-center mb-4">
+    <div className="p-6 bg-gradient-to-br from-gray-50 to-white shadow-lg rounded-lg max-w-3xl mx-auto">
+      <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800">Invoice Budgets</h2>
-        <div>
+        <div className="text-right">
           <p className="text-gray-600">Order Value: <span className="text-gray-800 font-semibold">Rs. {initialOrderValue.toFixed(2)}</span></p>
           <p className="text-gray-600">Total Remaining Budget: <span className="text-green-600 font-semibold">Rs. {totalBudget.toFixed(2)}</span></p>
         </div>
       </div>
-      <table className="min-w-full bg-gray-100 rounded-lg">
+      <table className="w-full bg-white rounded-lg shadow border border-gray-200">
         <thead>
           <tr className="bg-indigo-600 text-white">
-            <th className="py-3 px-4 font-semibold text-center">Month</th>
-            <th className="py-3 px-4 font-semibold text-center">Invoice Budget</th>
-            <th className="py-3 px-4 font-semibold text-center">Invoice Actual</th>
+            <th className="py-4 px-5 font-semibold text-center">Month</th>
+            <th className="py-4 px-5 font-semibold text-center">Invoice Budget</th>
+            <th className="py-4 px-5 font-semibold text-center">Invoice Actual</th>
           </tr>
         </thead>
         <tbody>
-          {months.map(month => (
-            <tr key={month} className="text-center border-b">
-              <td className="py-3 px-4 text-gray-800">{month}</td>
-              <td className="py-3 px-4">
+          {months.map((month) => (
+            <tr key={month} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+              <td className="py-3 px-5 text-gray-800 font-medium">{month}</td>
+              <td className="py-3 px-5">
                 {isEditing ? (
                   <input
                     type="number"
                     value={localInvoiceBudget[month] || 0}
-                    onChange={e => handleBudgetChange(month, e.target.value)}
-                    className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring focus:ring-indigo-300"
+                    onChange={(e) => handleBudgetChange(month, e.target.value)}
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-center focus:outline-none focus:ring-2 focus:ring-indigo-400"
                   />
                 ) : (
-                  <span>{localInvoiceBudget[month] || 0}</span>
+                  <span className="text-blue-600 font-medium">{localInvoiceBudget[month] || 0}</span>
                 )}
               </td>
-              <td className="py-3 px-4">
+              <td className="py-3 px-5">
                 {isEditing ? (
                   <input
                     type="number"
                     value={invoiceActual[month] || 0}
-                    onChange={e => handleActualChange(month, e.target.value)}
-                    className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring focus:ring-indigo-300"
+                    onChange={(e) => handleActualChange(month, e.target.value)}
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-center focus:outline-none focus:ring-2 focus:ring-indigo-400"
                   />
                 ) : (
-                  <span>{invoiceActual[month] || 0}</span>
+                  <span className="text-red-600 font-medium">{invoiceActual[month] || 0}</span>
                 )}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <div className="flex justify-end mt-4 space-x-2">
+      <div className="flex justify-end mt-6 space-x-4">
         {isEditing ? (
           <>
             <button
               onClick={handleSave}
-              className="px-4 py-2 bg-blue-500 text-white font-semibold rounded hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
+              className="px-5 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
             >
               Save
             </button>
             <button
               onClick={handleCancel}
-              className="px-4 py-2 bg-gray-400 text-white font-semibold rounded hover:bg-gray-500 focus:outline-none focus:ring focus:ring-gray-300"
+              className="px-5 py-2 bg-gray-400 text-white font-semibold rounded-lg hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300"
             >
               Cancel
             </button>
@@ -169,7 +169,7 @@ const InvoiceTable = ({ projectId, projectStartDate, projectEndDate, onInvoiceBu
           userRole !== 'user' && (
             <button
               onClick={() => setIsEditing(true)}
-              className="px-4 py-2 bg-indigo-500 text-white font-semibold rounded hover:bg-indigo-600 focus:outline-none focus:ring focus:ring-indigo-300"
+              className="px-5 py-2 bg-indigo-500 text-white font-semibold rounded-lg hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300"
             >
               Edit
             </button>

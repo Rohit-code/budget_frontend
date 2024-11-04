@@ -16,7 +16,7 @@ const Register = () => {
       return;
     }
     try {
-      await axios.post('http://192.168.1.3:5000/register', { name, dept, emailid, password });
+      await axios.post('http://192.168.1.120:5000/register', { name, dept, emailid, password });
       navigate('/login');
     } catch (error) {
       console.error('Error registering:', error);
@@ -25,26 +25,57 @@ const Register = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Register</h2>
-      <div>
-        <label>Name:</label>
-        <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
-      </div>
-      <div>
-        <label>Department:</label>
-        <input type="text" value={dept} onChange={(e) => setDept(e.target.value)} required />
-      </div>
-      <div>
-        <label>Email:</label>
-        <input type="email" value={emailid} onChange={(e) => setEmailId(e.target.value)} required />
-      </div>
-      <div>
-        <label>Password:</label>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-      </div>
-      <button type="submit">Register</button>
-    </form>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-gray-100">
+      <form onSubmit={handleSubmit} className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
+        <h2 className="text-3xl font-extrabold text-center text-gray-800 mb-8">Create an Account</h2>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Name:</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Department:</label>
+          <input
+            type="text"
+            value={dept}
+            onChange={(e) => setDept(e.target.value)}
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Email:</label>
+          <input
+            type="email"
+            value={emailid}
+            onChange={(e) => setEmailId(e.target.value)}
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div className="mb-6">
+          <label className="block text-gray-700 font-semibold mb-2">Password:</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <button
+          type="submit"
+          className="w-full py-3 text-white font-semibold rounded-md bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 shadow-lg transition-all duration-200"
+        >
+          Register
+        </button>
+      </form>
+    </div>
   );
 };
 

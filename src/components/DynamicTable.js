@@ -34,7 +34,12 @@ const generateMonthsArray = (start, end) => {
   return months;
 };
 
-const DynamicTable = ({ projectId, projectStartDate, projectEndDate, projectName }) => {
+const DynamicTable = ({
+  projectId,
+  projectStartDate,
+  projectEndDate,
+  projectName,
+}) => {
   const [expenses, setExpenses] = useState([]);
   const [newBudget, setNewBudget] = useState({});
   const [newActual, setNewActual] = useState({});
@@ -66,12 +71,12 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate, projectName
     const fetchProjectData = async () => {
       try {
         const projectResponse = await axios.get(
-          `http://192.168.1.3:5000/projects/${projectId}`
+          `http://192.168.1.120:5000/projects/${projectId}`
         );
         setProjectBudget(projectResponse.data.budget);
 
         const expensesResponse = await axios.get(
-          `http://192.168.1.3:5000/projects/${projectId}/expenses`
+          `http://192.168.1.120:5000/projects/${projectId}/expenses`
         );
         const budgetData = {};
         const actualData = {};
@@ -96,7 +101,7 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate, projectName
         setExpenses(expensesResponse.data);
 
         const invoiceResponse = await axios.get(
-          `http://192.168.1.3:5000/projects/${projectId}/invoices`
+          `http://192.168.1.120:5000/projects/${projectId}/invoices`
         );
         const combinedInvoiceBudget = invoiceResponse.data.reduce(
           (acc, invoice) => {
@@ -172,7 +177,7 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate, projectName
 
     try {
       await axios.post(
-        `http://192.168.1.3:5000/projects/${projectId}/expenses`,
+        `http://192.168.1.120:5000/projects/${projectId}/expenses`,
         data
       );
       alert("Expenses saved successfully!");
@@ -230,7 +235,7 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate, projectName
       try {
         // Upload data to the server
         await axios.post(
-          `http://192.168.1.3:5000/projects/${projectId}/upload-expenses`,
+          `http://192.168.1.120:5000/projects/${projectId}/upload-expenses`,
           {
             expenses: uploadData,
           }
@@ -260,7 +265,9 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate, projectName
     );
     if (!secondConfirmation) return;
 
-    const typedName = prompt(`To confirm deletion, please type the project name: "${projectName}"`);
+    const typedName = prompt(
+      `To confirm deletion, please type the project name: "${projectName}"`
+    );
 
     if (typedName !== projectName) {
       alert("Project name does not match. Deletion canceled.");
@@ -268,7 +275,7 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate, projectName
     }
 
     try {
-      await axios.delete(`http://192.168.1.3:5000/projects/${projectId}`);
+      await axios.delete(`http://192.168.1.120:5000/projects/${projectId}`);
       alert("Project deleted successfully!");
     } catch (error) {
       console.error("Error deleting project:", error);
@@ -322,37 +329,37 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate, projectName
   };
 
   return (
-    <div className="p-6 bg-white shadow-md rounded-lg">
-      <h2 className="text-3xl font-semibold mb-6 text-gray-700">
+    <div className="p-6 bg-gradient-to-br from-white to-gray-50 rounded-lg shadow-md">
+      <h2 className="text-3xl font-semibold mb-6 text-gray-800">
         Project Expenses Overview
       </h2>
       <div className="overflow-x-auto max-h-[70vh]">
         <table className="min-w-full border border-gray-300 bg-white">
           <thead>
-            <tr className="bg-teal-700 text-white text-sm uppercase tracking-wide">
-              <th className="p-3 border border-teal-700 sticky left-0 top-0 z-30 bg-teal-700">
-                Category
+            <tr className="bg-indigo-700 text-white text-sm uppercase tracking-wide">
+              <th className="p-3 border border-indigo-700 sticky left-0 top-0 z-30 bg-indigo-700">
+                Months
               </th>
               {months.map((month) => (
                 <th
                   key={month}
                   colSpan="2"
-                  className="p-3 border border-teal-700 sticky top-0 z-20 bg-teal-700"
+                  className="p-3 border border-indigo-700 sticky top-0 z-20 bg-indigo-700"
                 >
                   {month}
                 </th>
               ))}
             </tr>
-            <tr className="bg-teal-700 text-white text-sm uppercase tracking-wide">
-              <th className="p-3 border border-teal-700 sticky top-0 left-0 z-30 bg-teal-700">
+            <tr className="bg-indigo-700 text-white text-sm uppercase tracking-wide">
+              <th className="p-3 border border-indigo-700 sticky top-0 left-0 z-30 bg-indigo-700">
                 Category
               </th>
               {months.map((month) => (
                 <React.Fragment key={month}>
-                  <th className="p-3 border border-teal-700 sticky top-0 z-20 bg-teal-700">
+                  <th className="p-3 border border-indigo-700 sticky top-0 z-20 bg-indigo-700">
                     Budget
                   </th>
-                  <th className="p-3 border border-teal-700 sticky top-0 z-20 bg-teal-700">
+                  <th className="p-3 border border-indigo-700 sticky top-0 z-20 bg-indigo-700">
                     Actual
                   </th>
                 </React.Fragment>
@@ -366,10 +373,10 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate, projectName
               </td>
               {months.map((month) => (
                 <React.Fragment key={month}>
-                  <td className="p-3 border border-gray-300">
+                  <td className="p-3 border border-gray-300 text-blue-600 font-medium">
                     {invoiceBudget[month] || 0}
                   </td>
-                  <td className="p-3 border border-gray-300">
+                  <td className="p-3 border border-gray-300 text-red-600 font-medium">
                     {invoiceActual[month] || 0}
                   </td>
                 </React.Fragment>
@@ -381,10 +388,10 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate, projectName
               </td>
               {months.map((month) => (
                 <React.Fragment key={month}>
-                  <td className="p-3 border border-gray-300">
+                  <td className="p-3 border border-gray-300 text-blue-600 font-medium">
                     {calculateCashOutflow(month, "budget")}
                   </td>
-                  <td className="p-3 border border-gray-300">
+                  <td className="p-3 border border-gray-300 text-red-600 font-medium">
                     {calculateCashOutflow(month, "actual")}
                   </td>
                 </React.Fragment>
@@ -394,7 +401,7 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate, projectName
           <tbody>
             {categories.map((category) => (
               <tr key={category} className="hover:bg-gray-50">
-                <td className="p-3 font-medium border border-gray-300 sticky left-0 bg-gray-50 z-10">
+                <td className="p-3 font-medium border border-gray-300 sticky left-0 bg-gray-50 z-10 text-gray-800">
                   {category}
                 </td>
                 {months.map((month) => (
@@ -407,10 +414,12 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate, projectName
                           onChange={(e) =>
                             handleBudgetChange(month, category, e.target.value)
                           }
-                          className="w-full px-3 py-1 border border-gray-300 rounded-md text-center focus:outline-none focus:ring-2 focus:ring-teal-500"
+                          className="w-full px-3 py-1 border border-indigo-300 rounded-md text-center focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-indigo-50"
                         />
                       ) : (
-                        newBudget[month]?.[category] || 0
+                        <span className="text-blue-600 font-medium">
+                          {newBudget[month]?.[category] || 0}
+                        </span>
                       )}
                     </td>
                     <td className="p-3 border border-gray-300">
@@ -421,10 +430,12 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate, projectName
                           onChange={(e) =>
                             handleActualChange(month, category, e.target.value)
                           }
-                          className="w-full px-3 py-1 border border-gray-300 rounded-md text-center focus:outline-none focus:ring-2 focus:ring-teal-500"
+                          className="w-full px-3 py-1 border border-red-300 rounded-md text-center focus:outline-none focus:ring-2 focus:ring-red-500 bg-red-50"
                         />
                       ) : (
-                        newActual[month]?.[category] || 0
+                        <span className="text-red-600 font-medium">
+                          {newActual[month]?.[category] || 0}
+                        </span>
                       )}
                     </td>
                   </React.Fragment>
@@ -438,14 +449,14 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate, projectName
         {canEdit && (
           <>
             <button
-              className="w-32 h-8 text-xs font-medium rounded-md text-white transition-transform transform hover:scale-105 bg-gradient-to-r from-teal-400 to-teal-600 shadow-sm"
+              className="w-32 h-8 text-xs font-medium rounded-md text-white transition-transform transform hover:scale-105 bg-gradient-to-r from-indigo-500 to-indigo-700 shadow-sm"
               onClick={() => setIsEditable(!isEditable)}
             >
               {isEditable ? "Cancel" : "Edit"}
             </button>
             {isEditable && (
               <button
-                className="w-32 h-8 text-xs font-medium rounded-md text-white transition-transform transform hover:scale-105 bg-gradient-to-r from-blue-400 to-blue-600 shadow-sm"
+                className="w-32 h-8 text-xs font-medium rounded-md text-white transition-transform transform hover:scale-105 bg-gradient-to-r from-blue-500 to-blue-700 shadow-sm"
                 onClick={handleSave}
               >
                 Save
@@ -461,26 +472,32 @@ const DynamicTable = ({ projectId, projectStartDate, projectEndDate, projectName
           Export to Excel
         </button>
 
-        <div className="flex flex-col items-center">
-          <input
-            type="file"
-            onChange={handleFileUpload}
-            className="w-32 h-8 text-xs text-gray-700 file:border-0 file:bg-gray-200 file:text-gray-700 rounded-md mb-2"
-          />
-          <button
-            className="w-32 h-8 text-xs font-medium rounded-md text-white transition-transform transform hover:scale-105 bg-gradient-to-r from-green-400 to-green-600 shadow-sm"
-            onClick={handleUpload}
-          >
-            Upload
-          </button>
-        </div>
+        {(userRole === "admin" ||
+          userRole === "PMO" ||
+          userRole === "manager") && (
+          <div className="flex flex-col items-center">
+            <input
+              type="file"
+              onChange={handleFileUpload}
+              className="w-32 h-8 text-xs text-gray-700 file:border-0 file:bg-gray-200 file:text-gray-700 rounded-md mb-2"
+            />
+            <button
+              className="w-32 h-8 text-xs font-medium rounded-md text-white transition-transform transform hover:scale-105 bg-gradient-to-r from-green-500 to-green-700 shadow-sm"
+              onClick={handleUpload}
+            >
+              Upload
+            </button>
+          </div>
+        )}
 
-        <button
-          className="w-32 h-8 text-xs font-medium rounded-md text-white transition-transform transform hover:scale-105 bg-gradient-to-r from-red-500 to-red-700 shadow-sm"
-          onClick={handleDeleteProject}
-        >
-          Delete Project
-        </button>
+        {(userRole === "admin" || userRole === "PMO") && (
+          <button
+            className="w-32 h-8 text-xs font-medium rounded-md text-white transition-transform transform hover:scale-105 bg-gradient-to-r from-red-500 to-red-700 shadow-sm"
+            onClick={handleDeleteProject}
+          >
+            Delete Project
+          </button>
+        )}
       </div>
     </div>
   );
