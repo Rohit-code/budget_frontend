@@ -44,17 +44,17 @@ Before running the application, ensure you have the following installed:
 
     ```sql
     -- Table: projects
-CREATE TABLE public.projects (
+    CREATE TABLE public.projects (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
     budget NUMERIC(15, 2) NOT NULL,
     order_value NUMERIC(15, 2)
-);
+    );
 
--- Table: expenses
-CREATE TABLE public.expenses (
+    -- Table: expenses
+    CREATE TABLE public.expenses (
     id SERIAL PRIMARY KEY,
     project_id INTEGER NOT NULL REFERENCES public.projects(id) ON DELETE CASCADE,
     month VARCHAR(10) NOT NULL,
@@ -62,10 +62,10 @@ CREATE TABLE public.expenses (
     budget NUMERIC(15, 2) DEFAULT 0,
     actual NUMERIC(15, 2) DEFAULT 0,
     CONSTRAINT expenses_project_id_month_category_key UNIQUE (project_id, month, category)
-);
+    );
 
--- Table: invoices
-CREATE TABLE public.invoices (
+    -- Table: invoices
+    CREATE TABLE public.invoices (
     id SERIAL PRIMARY KEY,
     project_id INTEGER NOT NULL REFERENCES public.projects(id) ON DELETE CASCADE,
     start_date DATE NOT NULL,
@@ -73,10 +73,10 @@ CREATE TABLE public.invoices (
     invoice_budget JSONB NOT NULL,
     invoice_actual JSONB NOT NULL,
     CONSTRAINT invoices_project_id_start_date_end_date_key UNIQUE (project_id, start_date, end_date)
-);
+    );
 
--- Table: users
-CREATE TABLE public.users (
+    -- Table: users
+    CREATE TABLE public.users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     dept VARCHAR(100) NOT NULL,
@@ -84,7 +84,7 @@ CREATE TABLE public.users (
     password VARCHAR(255) NOT NULL,
     role VARCHAR(20) NOT NULL,
     CONSTRAINT users_role_check CHECK (role IN ('admin', 'PMO', 'manager', 'user'))
-);
+    );
     ```
 
 5. Configure the database connection in `server.js`:
